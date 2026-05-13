@@ -13,13 +13,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 public class PayrollStaffFrame extends JFrame {
+    private JButton inputEmployeeButton;
     private JButton oneEmployeeButton;
     private JButton allEmployeesButton;
     private JButton exitButton;
 
     public PayrollStaffFrame() {
         setTitle("Payroll Staff Portal");
-        setSize(400, 280);
+        setSize(400, 340);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
@@ -30,13 +31,15 @@ public class PayrollStaffFrame extends JFrame {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
 
         // Buttons
-        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 60, 25, 60));
 
+        inputEmployeeButton = new JButton("Add New Employee Record");
         oneEmployeeButton = new JButton("Process One Employee");
         allEmployeesButton = new JButton("Process All Employees");
         exitButton = new JButton("Exit");
 
+        buttonPanel.add(inputEmployeeButton);
         buttonPanel.add(oneEmployeeButton);
         buttonPanel.add(allEmployeesButton);
         buttonPanel.add(exitButton);
@@ -48,6 +51,13 @@ public class PayrollStaffFrame extends JFrame {
         add(mainPanel);
 
         // Events
+        inputEmployeeButton.addActionListener(new ActionListener() {     // NEW
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new EmployeeInputFrame().setVisible(true);
+            }
+        });
+        
         oneEmployeeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
