@@ -29,6 +29,7 @@ public class PayrollStaffFrame extends JFrame {
         JLabel titleLabel = new JLabel("Process Payroll", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+        titleLabel.setAligmentX(JPanel.CENTER ALIGNMENT) ;
 
         // Buttons
         JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
@@ -50,14 +51,17 @@ public class PayrollStaffFrame extends JFrame {
         mainPanel.add(buttonPanel);
         add(mainPanel);
 
-        // Events
+        // -- Action Events --
+
+        //Opens the Add Employee UI window
         inputEmployeeButton.addActionListener(new ActionListener() {     // NEW
             @Override
             public void actionPerformed(ActionEvent e) {
                 new EmployeeInputFrame().setVisible(true);
             }
         });
-        
+
+        //Opens the Single Employee Processing Window
         oneEmployeeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -65,6 +69,7 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
+        //Opens the Complete Summary Board Window
         allEmployeesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -72,6 +77,7 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
+        //Closes the current frame window
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
