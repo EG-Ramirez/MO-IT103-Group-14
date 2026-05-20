@@ -33,7 +33,7 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
 
         // Input panel
         JPanel inputPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(15, 25, 5, 25));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         inputPanel.add(new JLabel("Username:"));
         usernameField = new JTextField();
@@ -47,6 +47,9 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
         JPanel buttonPanel = new JPanel();
         loginButton = new JButton("Login");
         buttonPanel.add(loginButton);
+
+         //Makes the Enter key trigger the login button automatically
+        getRootPane().setDefaultButton(loginButton);
 
         add(titleLabel, BorderLayout.NORTH);
         add(inputPanel, BorderLayout.CENTER);
