@@ -29,7 +29,7 @@ public class PayrollStaffFrame extends JFrame {
         JLabel titleLabel = new JLabel("Process Payroll", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
-        titleLabel.setAligmentX(JPanel.CENTER ALIGNMENT) ;
+        titleLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
 
         // Buttons
         JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
