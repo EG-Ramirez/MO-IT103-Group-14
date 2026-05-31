@@ -51,6 +51,14 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
          //Makes the Enter key trigger the login button automatically
         getRootPane().setDefaultButton(loginButton);
 
+        // Pressing Enter on the username field moves focus to password
+        usernameField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                passwordField.requestFocusInWindow();
+            }
+        });
+
         add(titleLabel, BorderLayout.NORTH);
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -75,7 +83,9 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
                     "Incorrect username and/or password!",
                     "Login Failed",
                     JOptionPane.ERROR_MESSAGE);
+            usernameField.setText("");
             passwordField.setText("");
+            usernameField.requestFocusInWindow();
             return;
         }
 

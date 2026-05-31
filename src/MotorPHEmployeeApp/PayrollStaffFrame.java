@@ -16,6 +16,7 @@ public class PayrollStaffFrame extends JFrame {
     private JButton inputEmployeeButton;
     private JButton oneEmployeeButton;
     private JButton allEmployeesButton;
+    private JButton viewRecordsButton;
     private JButton exitButton;
 
     public PayrollStaffFrame() {
@@ -32,17 +33,19 @@ public class PayrollStaffFrame extends JFrame {
         titleLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
 
         // Buttons
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 60, 25, 60));
 
         inputEmployeeButton = new JButton("Add New Employee Record");
         oneEmployeeButton = new JButton("Process One Employee");
         allEmployeesButton = new JButton("Process All Employees");
+        viewRecordsButton = new JButton("View Employee Records");
         exitButton = new JButton("Exit");
 
         buttonPanel.add(inputEmployeeButton);
         buttonPanel.add(oneEmployeeButton);
         buttonPanel.add(allEmployeesButton);
+        buttonPanel.add(viewRecordsButton);
         buttonPanel.add(exitButton);
 
         JPanel mainPanel = new JPanel();
@@ -77,6 +80,15 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
+        
+        // Opens the Employee Records table view
+        viewRecordsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new EmployeeRecordsFrame().setVisible(true);
+            }
+        });
+        
         //Closes the current frame window
         exitButton.addActionListener(new ActionListener() {
             @Override

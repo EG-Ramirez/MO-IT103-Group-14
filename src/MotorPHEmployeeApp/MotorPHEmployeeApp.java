@@ -11,8 +11,14 @@ public class MotorPHEmployeeApp {
     static class Employee {
         String employeeNumber;
         String name;
+        String lastName;
+        String firstName;
         String birthday;
         double hourlyRate;
+        String sssNumber;
+        String philHealthNumber;
+        String tin;
+        String pagIbigNumber;
 
         /*
         3D Attendance Structure:
@@ -28,6 +34,26 @@ public class MotorPHEmployeeApp {
             this.name = name;
             this.birthday = birthday;
             this.hourlyRate = hourlyRate;
+            this.sssNumber = "";
+            this.philHealthNumber = "";
+            this.tin = "";
+            this.pagIbigNumber = "";
+        }
+        
+        // Full constructor used by parseEmployee and the updated EmployeeInputFrame
+        Employee(String employeeNumber, String lastName, String firstName, String birthday,
+                double hourlyRate, String sssNumber, String philHealthNumber,
+                String tin, String pagIbigNumber) {
+            this.employeeNumber = employeeNumber;
+            this.lastName = lastName;
+            this.firstName = firstName;
+            this.name = firstName + " " + lastName;
+            this.birthday = birthday;
+            this.hourlyRate = hourlyRate;
+            this.sssNumber = sssNumber;
+            this.philHealthNumber = philHealthNumber;
+            this.tin = tin;
+            this.pagIbigNumber = pagIbigNumber;
         }
     }
 
@@ -92,7 +118,14 @@ public class MotorPHEmployeeApp {
         String birthday = parts[3].trim();
         double rate = Double.parseDouble(parts[rateColumnIndex].trim().replace(",", ""));
 
-        return new Employee(empNo, firstName + " " + lastName, birthday, rate);
+        // Read government ID columns defensively — fall back to empty if not present
+        String sssNumber = (parts.length > 6) ? parts[6].trim() : "";
+        String philHealthNumber = (parts.length > 7) ? parts[7].trim() : "";
+        String tin = (parts.length > 8) ? parts[8].trim() : "";
+        String pagIbigNumber = (parts.length > 9) ? parts[9].trim() : "";
+
+        return new Employee(empNo, lastName, firstName, birthday, rate,
+                sssNumber, philHealthNumber, tin, pagIbigNumber);
     }
 
     // CSV Attendance Loader
@@ -133,6 +166,46 @@ public class MotorPHEmployeeApp {
         return newArr;
     }
 
+    /*
+     * Appends a new employee record to the CSV file.
+     * Column order matches the expected CSV structure:
+     *   0:empNo  1:lastName  2:firstName  3:birthday  4:address  5:phone
+     *   6:SSS    7:PhilHealth 8:TIN        9:PagIbig  10-12:N/A  13-17:0
+     *   18:hourlyRate
+     */
+    static void writeEmployeeToCSV(Employee emp) {
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(
+                new java.io.FileWriter("mph_employees_record.csv", true))) {
+
+            String row = emp.employeeNumber + ","
+                    + emp.lastName + ","
+                    + emp.firstName + ","
+                    + emp.birthday + ","
+                    + "N/A" + "," // address
+                    + "N/A" + "," // phone number
+                    + emp.sssNumber + ","
+                    + emp.philHealthNumber + ","
+                    + emp.tin + ","
+                    + emp.pagIbigNumber + ","
+                    + "N/A" + "," // status
+                    + "N/A" + "," // position
+                    + "N/A" + "," // immediate supervisor
+                    + "0" + "," // basic salary
+                    + "0" + "," // rice subsidy
+                    + "0" + "," // phone allowance
+                    + "0" + "," // clothing allowance
+                    + "0" + "," // gross semi-monthly rate
+                    + emp.hourlyRate;             // hourly rate (col 18)
+
+            bw.newLine();
+            bw.write(row);
+
+        } catch (IOException e) {
+            System.out.println("Error writing to employee file: " + e.getMessage());
+        }
+    }
+    
+    
     /*
      * Payroll Report Builder
      * NOTE: In CP1 this method used System.out.println().

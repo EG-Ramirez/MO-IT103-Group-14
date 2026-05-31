@@ -62,6 +62,14 @@ private JTextField empNumberField;
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Events
+        // Pressing Enter on the employee number field triggers search
+        empNumberField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleSearch();
+            }
+        });
+        
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

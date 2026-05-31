@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
+import javax.swing.JScrollPane;
 
 /**
  * EmployeeInputFrame — Add New Employee Record
@@ -33,13 +34,25 @@ public class EmployeeInputFrame extends JFrame {
 
     //  Input Fields 
     private JTextField empNumberField;
-    private JTextField empNameField;
-    private JTextField payCoverageField;
+    private JTextField lastNameField;
+    private JTextField firstNameField;
+    private JTextField birthdayField;
+    private JTextField sssNumberField;
+    private JTextField philHealthField;
+    private JTextField tinField;
+    private JTextField pagIbigField;
+    private JTextField hourlyRateField;
 
     //  Inline error hint labels (one per field) 
     private JLabel empNumberHint;
-    private JLabel empNameHint;
-    private JLabel payCoverageHint;
+    private JLabel lastNameHint;
+    private JLabel firstNameHint;
+    private JLabel birthdayHint;
+    private JLabel sssNumberHint;
+    private JLabel philHealthHint;
+    private JLabel tinHint;
+    private JLabel pagIbigHint;
+    private JLabel hourlyRateHint;
 
     //  Action Buttons 
     private JButton submitButton;
@@ -51,17 +64,26 @@ public class EmployeeInputFrame extends JFrame {
     private static final Color HINT_SUCCESS = new Color(0, 120, 0);
     private static final Color HINT_NEUTRAL = new Color(100, 100, 100);
 
-    
+    // Optional callback — invoked after each successful record save
+    // Used by EmployeeRecordsFrame to refresh the JTable in real time
+    private Runnable onRecordAdded;
+
+    // No-arg constructor preserves Feature 1 call site in PayrollStaffFrame
     public EmployeeInputFrame() {
+        this(null);
+    }
+
+    public EmployeeInputFrame(Runnable onRecordAdded) {
+        this.onRecordAdded = onRecordAdded;
         setTitle("Add New Employee Record");
-        setSize(480, 380);
+        setSize(520, 680);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
-
         buildUI();
         wireEvents();
     }
+    
 
     //  UI Construction 
 
@@ -73,7 +95,7 @@ public class EmployeeInputFrame extends JFrame {
         titleLabel.setBorder(BorderFactory.createEmptyBorder(14, 0, 6, 0));
 
         JLabel subtitleLabel = new JLabel(
-                "All fields are required. Pay Coverage must be a positive number.",
+                "All fields are required. Hourly Rate must be a positive number.",
                 SwingConstants.CENTER);
         subtitleLabel.setFont(new Font("Arial", Font.ITALIC, 11));
         subtitleLabel.setForeground(HINT_NEUTRAL);
@@ -116,31 +138,133 @@ public class EmployeeInputFrame extends JFrame {
         hintGbc.gridx = 1; hintGbc.gridy = 1;
         formPanel.add(empNumberHint, hintGbc);
 
-        // Row 2 - Employee Name
-        labelGbc.gridx = 0; labelGbc.gridy = 2;
-        formPanel.add(makeLabel("Employee Name:"), labelGbc);
+        // -- Row 2 / Row 3 : Last Name --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 2;
+        formPanel.add(makeLabel("Last Name:"), labelGbc);
 
-        empNameField = new JTextField(18);
-        empNameField.setToolTipText("Full name of the employee (letters only)");
-        fieldGbc.gridx = 1; fieldGbc.gridy = 2;
-        formPanel.add(empNameField, fieldGbc);
+        lastNameField = new JTextField(18);
+        lastNameField.setToolTipText("Employee's last name (letters only)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 2;
+        formPanel.add(lastNameField, fieldGbc);
 
-        empNameHint = makeHint("e.g. Juan dela Cruz  —  letters and spaces only");
-        hintGbc.gridx = 1; hintGbc.gridy = 3;
-        formPanel.add(empNameHint, hintGbc);
+        lastNameHint = makeHint("e.g. dela Cruz  —  letters and spaces only");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 3;
+        formPanel.add(lastNameHint, hintGbc);
 
-        // Row 4 - Pay Coverage
-        labelGbc.gridx = 0; labelGbc.gridy = 4;
-        formPanel.add(makeLabel("Pay Coverage (₱):"), labelGbc);
+        // -- Row 4 / Row 5 : First Name --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 4;
+        formPanel.add(makeLabel("First Name:"), labelGbc);
 
-        payCoverageField = new JTextField(18);
-        payCoverageField.setToolTipText("Monthly pay coverage in Philippine Peso (e.g. 25000.00)");
-        fieldGbc.gridx = 1; fieldGbc.gridy = 4;
-        formPanel.add(payCoverageField, fieldGbc);
+        firstNameField = new JTextField(18);
+        firstNameField.setToolTipText("Employee's first name (letters only)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 4;
+        formPanel.add(firstNameField, fieldGbc);
 
-        payCoverageHint = makeHint("e.g. 25000.00  —  must be a positive numeric amount");
-        hintGbc.gridx = 1; hintGbc.gridy = 5;
-        formPanel.add(payCoverageHint, hintGbc);
+        firstNameHint = makeHint("e.g. Juan  —  letters and spaces only");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 5;
+        formPanel.add(firstNameHint, hintGbc);
+
+        // -- Row 6 / Row 7 : Birthday --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 6;
+        formPanel.add(makeLabel("Birthday:"), labelGbc);
+
+        birthdayField = new JTextField(18);
+        birthdayField.setToolTipText("Date of birth in MM/DD/YYYY format (e.g. 06/19/1988)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 6;
+        formPanel.add(birthdayField, fieldGbc);
+
+        birthdayHint = makeHint("e.g. 06/19/1988  —  MM/DD/YYYY format");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 7;
+        formPanel.add(birthdayHint, hintGbc);
+
+        // -- Row 8 / Row 9 : SSS Number --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 8;
+        formPanel.add(makeLabel("SSS Number:"), labelGbc);
+
+        sssNumberField = new JTextField(18);
+        sssNumberField.setToolTipText("SSS membership number (e.g. 33-1234567-8)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 8;
+        formPanel.add(sssNumberField, fieldGbc);
+
+        sssNumberHint = makeHint("e.g. 33-1234567-8  —  required");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 9;
+        formPanel.add(sssNumberHint, hintGbc);
+
+        // -- Row 10 / Row 11 : PhilHealth Number --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 10;
+        formPanel.add(makeLabel("PhilHealth Number:"), labelGbc);
+
+        philHealthField = new JTextField(18);
+        philHealthField.setToolTipText("PhilHealth identification number (e.g. 123456789012)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 10;
+        formPanel.add(philHealthField, fieldGbc);
+
+        philHealthHint = makeHint("e.g. 123456789012  —  required");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 11;
+        formPanel.add(philHealthHint, hintGbc);
+
+        // -- Row 12 / Row 13 : TIN --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 12;
+        formPanel.add(makeLabel("TIN:"), labelGbc);
+
+        tinField = new JTextField(18);
+        tinField.setToolTipText("Tax Identification Number (e.g. 123-456-789-000)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 12;
+        formPanel.add(tinField, fieldGbc);
+
+        tinHint = makeHint("e.g. 123-456-789-000  —  required");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 13;
+        formPanel.add(tinHint, hintGbc);
+
+        // -- Row 14 / Row 15 : Pag-IBIG Number --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 14;
+        formPanel.add(makeLabel("Pag-IBIG Number:"), labelGbc);
+
+        pagIbigField = new JTextField(18);
+        pagIbigField.setToolTipText("Pag-IBIG (HDMF) membership number (e.g. 121212121212)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 14;
+        formPanel.add(pagIbigField, fieldGbc);
+
+        pagIbigHint = makeHint("e.g. 121212121212  —  required");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 15;
+        formPanel.add(pagIbigHint, hintGbc);
+
+        // -- Row 16 / Row 17 : Hourly Rate (renamed from Pay Coverage) --
+        labelGbc.gridx = 0;
+        labelGbc.gridy = 16;
+        formPanel.add(makeLabel("Hourly Rate (₱):"), labelGbc);
+
+        hourlyRateField = new JTextField(18);
+        hourlyRateField.setToolTipText("Hourly wage in Philippine Peso (e.g. 133.93)");
+        fieldGbc.gridx = 1;
+        fieldGbc.gridy = 16;
+        formPanel.add(hourlyRateField, fieldGbc);
+
+        hourlyRateHint = makeHint("e.g. 133.93  —  must be a positive numeric amount");
+        hintGbc.gridx = 1;
+        hintGbc.gridy = 17;
+        formPanel.add(hourlyRateHint, hintGbc);
 
         //  Button panel 
         submitButton = new JButton("Submit");
@@ -157,10 +281,15 @@ public class EmployeeInputFrame extends JFrame {
         buttonPanel.add(submitButton);
         buttonPanel.add(clearButton);
         buttonPanel.add(closeButton);
+        
+        //  Wrap form in a scroll pane to handle variable screen heights gracefully
+        JScrollPane formScroll = new JScrollPane(formPanel);
+        formScroll.setBorder(null);
+        formScroll.getVerticalScrollBar().setUnitIncrement(16);
 
         //  Assemble frame 
         add(headerPanel,  BorderLayout.NORTH);
-        add(formPanel,    BorderLayout.CENTER);
+        add(formScroll, BorderLayout.CENTER);
         add(buttonPanel,  BorderLayout.SOUTH);
     }
 
@@ -193,9 +322,15 @@ public class EmployeeInputFrame extends JFrame {
         });
 
         //  FocusListeners - clear inline hints when user enters a field 
-        addFocusReset(empNumberField,   empNumberHint,   "e.g. 10001  —  must be a positive whole number");
-        addFocusReset(empNameField,     empNameHint,     "e.g. Juan dela Cruz  —  letters and spaces only");
-        addFocusReset(payCoverageField, payCoverageHint, "e.g. 25000.00  —  must be a positive numeric amount");
+        addFocusReset(empNumberField, empNumberHint, "e.g. 10001  —  must be a positive whole number");
+        addFocusReset(lastNameField, lastNameHint, "e.g. dela Cruz  —  letters and spaces only");
+        addFocusReset(firstNameField, firstNameHint, "e.g. Juan  —  letters and spaces only");
+        addFocusReset(birthdayField, birthdayHint, "e.g. 06/19/1988  —  MM/DD/YYYY format");
+        addFocusReset(sssNumberField, sssNumberHint, "e.g. 33-1234567-8  —  required");
+        addFocusReset(philHealthField, philHealthHint, "e.g. 123456789012  —  required");
+        addFocusReset(tinField, tinHint, "e.g. 123-456-789-000  —  required");
+        addFocusReset(pagIbigField, pagIbigHint, "e.g. 121212121212  —  required");
+        addFocusReset(hourlyRateField, hourlyRateHint, "e.g. 133.93  —  must be a positive numeric amount");
     }
 
     //  handleSubmit: full validation with try-catch + JOptionPane feedback 
@@ -238,49 +373,117 @@ public class EmployeeInputFrame extends JFrame {
             }
         }
 
-        //  2. Validate Employee Name 
-        String empName = empNameField.getText().trim();
+        //  2. Validate Last Name
+        String lastName = lastNameField.getText().trim();
 
-        if (empName.isEmpty()) {
-            setHint(empNameHint, "⚠ Employee Name is required.", HINT_ERROR);
+        if (lastName.isEmpty()) {
+            setHint(lastNameHint, "⚠ Last Name is required.", HINT_ERROR);
             valid = false;
-        } else if (!empName.matches("[a-zA-ZÀ-ÿ\\s.'-]+")) {
-            // Reject names containing digits or special characters
-            setHint(empNameHint, "⚠ Employee Name must contain letters and spaces only.", HINT_ERROR);
+        } else if (!lastName.matches("[a-zA-ZÀ-ÿ\\s.'-]+")) {
+            setHint(lastNameHint, "⚠ Last Name must contain letters and spaces only.", HINT_ERROR);
             valid = false;
-        } else if (empName.length() < 2) {
-            setHint(empNameHint, "⚠ Employee Name is too short.", HINT_ERROR);
+        } else if (lastName.length() < 2) {
+            setHint(lastNameHint, "⚠ Last Name is too short.", HINT_ERROR);
             valid = false;
         } else {
-            setHint(empNameHint, "✓ Name accepted.", HINT_SUCCESS);
+            setHint(lastNameHint, "✓ Last Name accepted.", HINT_SUCCESS);
         }
 
-        //  3. Validate Pay Coverage 
-        String payCoverageStr = payCoverageField.getText().trim();
+        //  3. Validate First Name
+        String firstName = firstNameField.getText().trim();
 
-        double payCoverage = 0;
-        if (payCoverageStr.isEmpty()) {
-            setHint(payCoverageHint, "⚠ Pay Coverage is required.", HINT_ERROR);
+        if (firstName.isEmpty()) {
+            setHint(firstNameHint, "⚠ First Name is required.", HINT_ERROR);
+            valid = false;
+        } else if (!firstName.matches("[a-zA-ZÀ-ÿ\\s.'-]+")) {
+            setHint(firstNameHint, "⚠ First Name must contain letters and spaces only.", HINT_ERROR);
+            valid = false;
+        } else if (firstName.length() < 2) {
+            setHint(firstNameHint, "⚠ First Name is too short.", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(firstNameHint, "✓ First Name accepted.", HINT_SUCCESS);
+        }
+
+        //  4. Validate Birthday
+        String birthday = birthdayField.getText().trim();
+
+        if (birthday.isEmpty()) {
+            setHint(birthdayHint, "⚠ Birthday is required.", HINT_ERROR);
+            valid = false;
+        } else if (!birthday.matches("\\d{2}/\\d{2}/\\d{4}")) {
+            setHint(birthdayHint, "⚠ Birthday must be in MM/DD/YYYY format (e.g. 06/19/1988).", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(birthdayHint, "✓ Birthday accepted.", HINT_SUCCESS);
+        }
+
+        //  5. Validate SSS Number
+        String sssNumber = sssNumberField.getText().trim();
+
+        if (sssNumber.isEmpty()) {
+            setHint(sssNumberHint, "⚠ SSS Number is required.", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(sssNumberHint, "✓ SSS Number accepted.", HINT_SUCCESS);
+        }
+
+        //  6. Validate PhilHealth Number
+        String philHealthNumber = philHealthField.getText().trim();
+
+        if (philHealthNumber.isEmpty()) {
+            setHint(philHealthHint, "⚠ PhilHealth Number is required.", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(philHealthHint, "✓ PhilHealth Number accepted.", HINT_SUCCESS);
+        }
+
+        //  7. Validate TIN
+        String tin = tinField.getText().trim();
+
+        if (tin.isEmpty()) {
+            setHint(tinHint, "⚠ TIN is required.", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(tinHint, "✓ TIN accepted.", HINT_SUCCESS);
+        }
+
+        //  8. Validate Pag-IBIG Number
+        String pagIbigNumber = pagIbigField.getText().trim();
+
+        if (pagIbigNumber.isEmpty()) {
+            setHint(pagIbigHint, "⚠ Pag-IBIG Number is required.", HINT_ERROR);
+            valid = false;
+        } else {
+            setHint(pagIbigHint, "✓ Pag-IBIG Number accepted.", HINT_SUCCESS);
+        }
+
+        //  9. Validate Hourly Rate
+        String hourlyRateStr = hourlyRateField.getText().trim();
+        double hourlyRate = 0;
+
+        if (hourlyRateStr.isEmpty()) {
+            setHint(hourlyRateHint, "⚠ Hourly Rate is required.", HINT_ERROR);
             valid = false;
         } else {
             try {
-                payCoverage = Double.parseDouble(payCoverageStr.replace(",", ""));
+                hourlyRate = Double.parseDouble(hourlyRateStr.replace(",", ""));
 
-                if (payCoverage <= 0) {
-                    setHint(payCoverageHint, "⚠ Pay Coverage must be greater than zero.", HINT_ERROR);
+                if (hourlyRate <= 0) {
+                    setHint(hourlyRateHint, "⚠ Hourly Rate must be greater than zero.", HINT_ERROR);
                     valid = false;
-                } else if (payCoverage > 9_999_999) {
-                    setHint(payCoverageHint, "⚠ Pay Coverage value seems unreasonably large.", HINT_ERROR);
+                } else if (hourlyRate > 9_999_999) {
+                    setHint(hourlyRateHint, "⚠ Hourly Rate value seems unreasonably large.", HINT_ERROR);
                     valid = false;
                 } else {
-                    setHint(payCoverageHint,
-                            String.format("✓ ₱%,.2f accepted.", payCoverage),
+                    setHint(hourlyRateHint,
+                            String.format("✓ ₱%,.2f accepted.", hourlyRate),
                             HINT_SUCCESS);
                 }
 
             } catch (NumberFormatException ex) {
-                // Non-numeric pay coverage caught here
-                setHint(payCoverageHint, "⚠ Pay Coverage must be a numeric value (e.g. 25000.00).", HINT_ERROR);
+                // Non-numeric hourly rate caught here
+                setHint(hourlyRateHint, "⚠ Hourly Rate must be a numeric value (e.g. 133.93).", HINT_ERROR);
                 valid = false;
             }
         }
@@ -299,12 +502,17 @@ public class EmployeeInputFrame extends JFrame {
         //  5. All fields valid - add to in-memory employee list 
         int empNumber = Integer.parseInt(empNumberStr);
 
-        MotorPHEmployeeApp.Employee newEmployee =
-                new MotorPHEmployeeApp.Employee(
+        MotorPHEmployeeApp.Employee newEmployee
+                = new MotorPHEmployeeApp.Employee(
                         empNumberStr,
-                        empName,
-                        "N/A",          // Birthday not captured in this form
-                        payCoverage);   // Pay Coverage stored as hourlyRate placeholder
+                        lastName,
+                        firstName,
+                        birthday,
+                        hourlyRate,
+                        sssNumber,
+                        philHealthNumber,
+                        tin,
+                        pagIbigNumber);
 
         // Grow the global employees array by one slot
         MotorPHEmployeeApp.Employee[] updated =
@@ -314,14 +522,17 @@ public class EmployeeInputFrame extends JFrame {
         updated[updated.length - 1] = newEmployee;
         MotorPHEmployeeApp.employees = updated;
 
-        //  6. Confirmation dialog 
+        // Append the new record to the CSV file for persistence
+        MotorPHEmployeeApp.writeEmployeeToCSV(newEmployee);
+
+        //  Confirmation dialog
         String confirmationMessage = String.format(
                 "Employee record added successfully!%n%n"
-                        + "  Employee Number : %d%n"
-                        + "  Employee Name   : %s%n"
-                        + "  Pay Coverage    : ₱%,.2f%n%n"
-                        + "The record is now available in the payroll system.",
-                empNumber, empName, payCoverage);
+                + "  Employee Number : %d%n"
+                + "  Name            : %s %s%n"
+                + "  Hourly Rate     : ₱%,.2f%n%n"
+                + "The record is now available in the payroll system.",
+                empNumber, firstName, lastName, hourlyRate);
 
         JOptionPane.showMessageDialog(
                 this,
@@ -330,19 +541,33 @@ public class EmployeeInputFrame extends JFrame {
                 JOptionPane.INFORMATION_MESSAGE);
 
         //  7. Reset the form for the next entry 
-        handleClear();
+        handleClear(); //  handleClear: resets all fields and hints
+    
+        if (onRecordAdded != null) {
+            onRecordAdded.run();
+        }
     }
-
-    //  handleClear: resets all fields and hints 
 
     private void handleClear() {
         empNumberField.setText("");
-        empNameField.setText("");
-        payCoverageField.setText("");
+        lastNameField.setText("");
+        firstNameField.setText("");
+        birthdayField.setText("");
+        sssNumberField.setText("");
+        philHealthField.setText("");
+        tinField.setText("");
+        pagIbigField.setText("");
+        hourlyRateField.setText("");
 
         setHint(empNumberHint,   "e.g. 10001  —  must be a positive whole number",   HINT_NEUTRAL);
-        setHint(empNameHint,     "e.g. Juan dela Cruz  —  letters and spaces only",  HINT_NEUTRAL);
-        setHint(payCoverageHint, "e.g. 25000.00  —  must be a positive numeric amount", HINT_NEUTRAL);
+        setHint(lastNameHint, "e.g. dela Cruz  —  letters and spaces only", HINT_NEUTRAL);
+        setHint(firstNameHint, "e.g. Juan  —  letters and spaces only", HINT_NEUTRAL);
+        setHint(birthdayHint, "e.g. 06/19/1988  —  MM/DD/YYYY format", HINT_NEUTRAL);
+        setHint(sssNumberHint, "e.g. 33-1234567-8  —  required", HINT_NEUTRAL);
+        setHint(philHealthHint, "e.g. 123456789012  —  required", HINT_NEUTRAL);
+        setHint(tinHint, "e.g. 123-456-789-000  —  required", HINT_NEUTRAL);
+        setHint(pagIbigHint, "e.g. 121212121212  —  required", HINT_NEUTRAL);
+        setHint(hourlyRateHint, "e.g. 133.93  —  must be a positive numeric amount", HINT_NEUTRAL);
 
         empNumberField.requestFocusInWindow();
     }

@@ -17,10 +17,10 @@ import javax.swing.JTextField;
 
 public class SinglePayrollFrame extends JFrame {
 private JTextField empNumberField;
-    private JButton generateButton;
-    private JButton clearButton;
-    private JButton closeButton;
-    private JTextArea reportArea;
+private JButton generateButton;
+private JButton clearButton;
+private JButton closeButton;
+private JTextArea reportArea;
 
     public SinglePayrollFrame() {
         setTitle("Single Employee Payroll");
@@ -57,6 +57,15 @@ private JTextField empNumberField;
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Events
+        
+        // Pressing Enter on the employee number field triggers generate
+        empNumberField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleGenerate();
+            }
+        });
+        
         generateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
