@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class MotorPHEmployeeApp {
@@ -107,7 +109,6 @@ public class MotorPHEmployeeApp {
         }
         return 18;
     }
-
     // Build an Employee object from a single CSV line
     static Employee parseEmployee(String line, int rateColumnIndex) {
         String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");

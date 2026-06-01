@@ -9,6 +9,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -38,6 +39,9 @@ public class EmployeeRecordsFrame extends JFrame {
     private JButton addButton;
     private JButton refreshButton;
     private JButton closeButton;
+    private JButton deleteButton;
+    private JButton updateButton;
+    private EmployeeUpdateDeleteManager manager;
 
     public EmployeeRecordsFrame() {
         setTitle("Employee Records");
@@ -90,11 +94,15 @@ public class EmployeeRecordsFrame extends JFrame {
         addButton = new JButton("Add New Employee");
         refreshButton = new JButton("Refresh");
         closeButton = new JButton("Close");
+        deleteButton = new JButton("Delete");
+        updateButton = new JButton("Update");
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addButton);
         buttonPanel.add(refreshButton);
         buttonPanel.add(closeButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(updateButton);
 
         // -- South section: details + buttons stacked --
         JPanel southPanel = new JPanel(new BorderLayout());
@@ -136,6 +144,27 @@ public class EmployeeRecordsFrame extends JFrame {
                 dispose();
             }
         });
+    //new
+       updateButton.addActionListener(e -> {
+            String id = JOptionPane.showInputDialog("Enter Employee ID:");
+            if (id == null || id.trim().isEmpty()) {
+                return; 
+            }
+
+            manager.updateRecord(id);
+            manager.saveAllToCSV();
+            loadTableData();
+        });
+
+        deleteButton.addActionListener(e -> {
+             String id = JOptionPane.showInputDialog("Enter Employee ID:");
+                if (id == null || id.trim().isEmpty()) {
+                    return; 
+                }
+                manager.deleteRecord(id);
+                manager.saveAllToCSV();
+                loadTableData();
+            });
 
         // Row selection — populate details area
         employeeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
