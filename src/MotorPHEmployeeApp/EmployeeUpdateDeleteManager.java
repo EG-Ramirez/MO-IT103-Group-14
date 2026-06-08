@@ -1,8 +1,12 @@
 package MotorPHEmployeeApp;
 
+import java.awt.GridLayout;
 import java.io.*;
 import java.util.ArrayList;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class EmployeeUpdateDeleteManager {
 
@@ -16,6 +20,13 @@ public class EmployeeUpdateDeleteManager {
         this.fileName = fileName;
     }
 
+    
+    // Exposes the working list so EmployeeRecordsFrame can sync the
+    // global employees array after an update or delete.
+    public ArrayList<MotorPHEmployeeApp.Employee> getEmployees() {
+        return employees;
+    }
+    
      // Just finds an employee using their ID
     public MotorPHEmployeeApp.Employee findEmployee(String empNo) {
 
@@ -41,25 +52,76 @@ public class EmployeeUpdateDeleteManager {
             return;
         }
 
-        String newSSS = JOptionPane.showInputDialog("Enter new SSS Number:");
-        if (newSSS == null) return;
+        // Build an editable form pre-filled with the employee's current details.
+        // Every field can be changed; anything left as-is keeps its current value.
+        JTextField empNumberField = new JTextField(emp.employeeNumber);
+        JTextField lastNameField  = new JTextField(emp.lastName);
+        JTextField firstNameField = new JTextField(emp.firstName);
+        JTextField sssField       = new JTextField(emp.sssNumber);
+        JTextField philField      = new JTextField(emp.philHealthNumber);
+        JTextField tinField       = new JTextField(emp.tin);
+        JTextField pagIbigField   = new JTextField(emp.pagIbigNumber);
+        JTextField rateField      = new JTextField(String.valueOf(emp.hourlyRate));
 
-        String newPhil = JOptionPane.showInputDialog("Enter new PhilHealth Number:");
-        if (newPhil == null) return;
+        JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
+        panel.add(new JLabel("Employee Number:"));   panel.add(empNumberField);
+        panel.add(new JLabel("Last Name:"));         panel.add(lastNameField);
+        panel.add(new JLabel("First Name:"));        panel.add(firstNameField);
+        panel.add(new JLabel("SSS Number:"));        panel.add(sssField);
+        panel.add(new JLabel("PhilHealth Number:")); panel.add(philField);
+        panel.add(new JLabel("TIN:"));               panel.add(tinField);
+        panel.add(new JLabel("Pag-IBIG Number:"));   panel.add(pagIbigField);
+        panel.add(new JLabel("Hourly Rate:"));       panel.add(rateField);
 
-        String newTIN = JOptionPane.showInputDialog("Enter new TIN:");
-        if (newTIN == null) return;
+        int result = JOptionPane.showConfirmDialog(
+                null, panel, "Update Employee Record",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        String newPagIbig = JOptionPane.showInputDialog("Enter new Pag-IBIG Number:");
-        if (newPagIbig == null) return;
+        if (result != JOptionPane.OK_OPTION) return;
 
-        String rateStr = JOptionPane.showInputDialog("Enter new Hourly Rate:");
-        if (rateStr == null) return;
+        // Read back the edited values
+        String newEmpNo   = empNumberField.getText().trim();
+        String newLast    = lastNameField.getText().trim();
+        String newFirst   = firstNameField.getText().trim();
+        String newSSS     = sssField.getText().trim();
+        String newPhil    = philField.getText().trim();
+        String newTIN     = tinField.getText().trim();
+        String newPagIbig = pagIbigField.getText().trim();
+        String rateStr    = rateField.getText().trim();
+
+        // All fields are required
+        if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty()
+                || newSSS.isEmpty() || newPhil.isEmpty() || newTIN.isEmpty()
+                || newPagIbig.isEmpty() || rateStr.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "All fields are required!");
+            return;
+        }
+
+        // Employee Number must be numeric, positive, and not used by another employee
+        int empNumberValue;
+
+        try {
+            empNumberValue = Integer.parseInt(newEmpNo);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Employee Number must be numeric!");
+            return;
+        }
+
+        if (empNumberValue <= 0) {
+            JOptionPane.showMessageDialog(null, "Employee Number must be greater than 0!");
+            return;
+        }
+
+        MotorPHEmployeeApp.Employee existing = findEmployee(newEmpNo);
+        if (existing != null && existing != emp) {
+            JOptionPane.showMessageDialog(null, "Employee Number already exists!");
+            return;
+        }
 
         double rate;
 
         try {
-            rate = Double.parseDouble(rateStr);
+            rate = Double.parseDouble(rateStr.replace(",", ""));
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Invalid rate input!");
             return;
@@ -71,6 +133,10 @@ public class EmployeeUpdateDeleteManager {
         }
 
         // Apply changes to the employee object
+        emp.employeeNumber = newEmpNo;
+        emp.lastName = newLast;
+        emp.firstName = newFirst;
+        emp.name = newFirst + " " + newLast;   // keep the combined name in sync
         emp.sssNumber = newSSS;
         emp.philHealthNumber = newPhil;
         emp.tin = newTIN;
@@ -105,14 +171,23 @@ public class EmployeeUpdateDeleteManager {
         }
     }
 
-      // Saves everything back to the CSV file
+    // Saves everything back to the CSV file
     public void saveAllToCSV() {
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
-            fileName = "mph_employees_record.csv";
+            
+            // Write the header row first. loadEmployeesFromCSV always treats the
+            // first line as the header, so this keeps the first employee from
+            // being skipped and lets findColumnIndex locate the Hourly Rate column.
+            bw.write("Employee #,Last Name,First Name,Birthday,Address,Phone Number,"
+                    + "SSS #,PhilHealth #,TIN #,Pag-IBIG #,Status,Position,"
+                    + "Immediate Supervisor,Basic Salary,Rice Subsidy,Phone Allowance,"
+                    + "Clothing Allowance,Gross Semi-monthly Rate,Hourly Rate");
+            bw.newLine();
 
             for (MotorPHEmployeeApp.Employee emp : employees) {
 
+                // Same 19-column layout as writeEmployeeToCSV (Hourly Rate at column 18)
                 String row =
                         emp.employeeNumber + "," +
                         emp.lastName + "," +
@@ -124,7 +199,7 @@ public class EmployeeUpdateDeleteManager {
                         emp.tin + "," +
                         emp.pagIbigNumber + "," +
                         "N/A,N/A,N/A," +
-                        "0,0,0,0," +
+                        "0,0,0,0,0," +
                         emp.hourlyRate;
 
                 bw.write(row);
@@ -136,9 +211,3 @@ public class EmployeeUpdateDeleteManager {
         }
     }
 }
-
-/*
- * Tried fixing the logic here.
- * If you notice nothing happens when clicking update/delete, it might not be fully wired yet.
- * The methods are working on the data, but the UI might still need adjustment.
- */

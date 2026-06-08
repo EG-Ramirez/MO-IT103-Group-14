@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -41,7 +42,6 @@ public class EmployeeRecordsFrame extends JFrame {
     private JButton closeButton;
     private JButton deleteButton;
     private JButton updateButton;
-    private EmployeeUpdateDeleteManager manager;
 
     public EmployeeRecordsFrame() {
         setTitle("Employee Records");
@@ -62,7 +62,7 @@ public class EmployeeRecordsFrame extends JFrame {
         // -- Table setup --
         String[] columns = {
             "Emp. No.", "Last Name", "First Name",
-            "SSS No.", "PhilHealth No.", "TIN", "Pag-IBIG No."
+            "SSS No.", "PhilHealth No.", "TIN", "Pag-IBIG No.", "Hourly Rate"
         };
 
         tableModel = new DefaultTableModel(columns, 0) {
@@ -144,27 +144,52 @@ public class EmployeeRecordsFrame extends JFrame {
                 dispose();
             }
         });
-    //new
+    
        updateButton.addActionListener(e -> {
-            String id = JOptionPane.showInputDialog("Enter Employee ID:");
-            if (id == null || id.trim().isEmpty()) {
-                return; 
+            int row = employeeTable.getSelectedRow();
+            if (row < 0 || MotorPHEmployeeApp.employees == null
+                    || row >= MotorPHEmployeeApp.employees.length) {
+                JOptionPane.showMessageDialog(this,
+                        "Please select an employee from the table first.",
+                        "No Selection",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
+            String id = MotorPHEmployeeApp.employees[row].employeeNumber;
+
+            EmployeeUpdateDeleteManager manager = buildManager();
             manager.updateRecord(id);
+
+            // Sync the global array with the manager's list, then persist
+            MotorPHEmployeeApp.employees =
+                    manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
             manager.saveAllToCSV();
             loadTableData();
         });
 
         deleteButton.addActionListener(e -> {
-             String id = JOptionPane.showInputDialog("Enter Employee ID:");
-                if (id == null || id.trim().isEmpty()) {
-                    return; 
-                }
-                manager.deleteRecord(id);
-                manager.saveAllToCSV();
-                loadTableData();
-            });
+            int row = employeeTable.getSelectedRow();
+            if (row < 0 || MotorPHEmployeeApp.employees == null
+                    || row >= MotorPHEmployeeApp.employees.length) {
+                JOptionPane.showMessageDialog(this,
+                        "Please select an employee from the table first.",
+                        "No Selection",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String id = MotorPHEmployeeApp.employees[row].employeeNumber;
+
+            EmployeeUpdateDeleteManager manager = buildManager();
+            manager.deleteRecord(id);
+
+            // Sync the global array with the manager's list, then persist
+            MotorPHEmployeeApp.employees =
+                    manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
+            manager.saveAllToCSV();
+            loadTableData();
+        });
 
         // Row selection — populate details area
         employeeTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -177,7 +202,21 @@ public class EmployeeRecordsFrame extends JFrame {
         });
     }
 
-    // Populate table from the global in-memory employees array
+    
+    // Builds a manager backed by the current in-memory employees.
+    // The list holds the same Employee objects as the global array, so an
+    // update applies in place; a delete is synced back by the caller.
+    private EmployeeUpdateDeleteManager buildManager() {
+        ArrayList<MotorPHEmployeeApp.Employee> list = new ArrayList<>();
+        if (MotorPHEmployeeApp.employees != null) {
+            for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
+                list.add(emp);
+            }
+        }
+        return new EmployeeUpdateDeleteManager(list, "mph_employees_record.csv");
+    }
+
+// Populate table from the global in-memory employees array
     void loadTableData() {
         tableModel.setRowCount(0);
 
@@ -193,7 +232,8 @@ public class EmployeeRecordsFrame extends JFrame {
                 emp.sssNumber,
                 emp.philHealthNumber,
                 emp.tin,
-                emp.pagIbigNumber
+                emp.pagIbigNumber,
+                String.format("\u20b1%,.2f", emp.hourlyRate)
             });
         }
     }
