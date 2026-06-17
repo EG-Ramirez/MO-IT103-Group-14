@@ -219,11 +219,13 @@ public class MotorPHEmployeeApp {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("========================================\n");
-        sb.append("PAYROLL REPORT FOR: ").append(emp.name).append("\n");
-        sb.append("Employee Number: ").append(emp.employeeNumber).append("\n");
-        sb.append("Birthday: ").append(emp.birthday).append("\n");
-        sb.append("========================================\n");
+       sb.append("   ==================================================\n");
+       sb.append("                     PAYROLL REPORT                  \n");
+       sb.append("   ==================================================\n");
+       sb.append("      Employee Name : ").append(emp.name).append("\n");
+       sb.append("      Employee ID   : ").append(emp.employeeNumber).append("\n");
+       sb.append("      Birthday      : ").append(emp.birthday).append("\n");
+       sb.append("   ==================================================\n\n");
 
         for (int m = 6; m <= 12; m++) {
             double firstHours = computeHoursWorked(emp.attendanceIn[m][0], emp.attendanceOut[m][0]);
@@ -241,25 +243,25 @@ public class MotorPHEmployeeApp {
             double tax = computeIncomeTax(combinedGross - (sss + philHealth + pagIbig));
             double totalDeductions = sss + philHealth + pagIbig + tax;
 
-            sb.append("Payroll Summary for: ").append(monthNames[m]).append("\n");
+            sb.append("                --- Summary for: ").append(monthNames[m]).append(" ---\n\n");
 
-            sb.append("[ First Cutoff: 1 - 15 ]\n");
-            sb.append("Hours Worked: ").append(firstHours).append("\n");
-            sb.append("Gross Pay: ").append(firstGross).append("\n");
-            sb.append("Net Pay: ").append(firstGross).append("\n");
+            sb.append("      [ First Cutoff: 1 - 15 ]\n");
+            sb.append("      Hours Worked : ").append(firstHours).append("\n");
+            sb.append("      Gross Pay    : Php ").append(firstGross).append("\n");
+            sb.append("      Net Pay      : Php ").append(firstGross).append("\n");
 
-            sb.append("[ Second Cutoff: 16 - 30 ]\n");
-            sb.append("Hours Worked: ").append(secondHours).append("\n");
-            sb.append("Gross Pay: ").append(secondGross).append("\n");
-            sb.append("Net Pay: ").append(secondGross - totalDeductions).append("\n");
+            sb.append("      [ Second Cutoff: 16 - 30 ]\n");
+            sb.append("      Hours Worked : ").append(secondHours).append("\n");
+            sb.append("      Gross Pay    : Php ").append(secondGross).append("\n");
+            sb.append("      Net Pay      : Php ").append(secondGross - totalDeductions).append("\n");
 
-            sb.append("=========== Deductions =============\n");
-            sb.append("SSS: ").append(sss).append("\n");
-            sb.append("PhilHealth: ").append(philHealth).append("\n");
-            sb.append("Pag-IBIG: ").append(pagIbig).append("\n");
-            sb.append("Tax: ").append(tax).append("\n");
-            sb.append("Total: ").append(totalDeductions).append("\n");
-            sb.append("========================================\n");
+            sb.append("      =========== Monthly Deductions ===========\n");
+            sb.append("      SSS          : Php ").append(sss).append("\n");
+            sb.append("      PhilHealth   : Php ").append(philHealth).append("\n");
+            sb.append("      Pag-IBIG     : Php ").append(pagIbig).append("\n");
+            sb.append("      Tax          : Php ").append(tax).append("\n");
+            sb.append("      Total        : Php ").append(totalDeductions).append("\n\n");
+            sb.append("   ==================================================\n\n");
         }
 
         return sb.toString();
