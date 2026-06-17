@@ -49,7 +49,7 @@ public class PayrollStaffFrame extends JFrame {
         buttonPanel.add(viewRecordsButton);
         buttonPanel.add(exitButton);
 
-        JPanel mainPanel = new JPanel(new BorderLayout);
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(titleLabel, BorderLayout.NORTH);
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
         add(mainPanel);
