@@ -21,7 +21,7 @@ public class PayrollStaffFrame extends JFrame {
 
     public PayrollStaffFrame() {
         setTitle("Payroll Staff Portal");
-        setSize(400, 340);
+        setSize(400, 380);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
