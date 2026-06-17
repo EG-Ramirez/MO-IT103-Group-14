@@ -107,11 +107,13 @@ private JTextField empNumberField;
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("=========== Employee Information ===========\n");
-        sb.append("Employee Number : ").append(emp.employeeNumber).append("\n");
-        sb.append("Name            : ").append(emp.name).append("\n");
-        sb.append("Birthday        : ").append(emp.birthday).append("\n");
-        sb.append("============================================\n");
+       sb.append("    ============================================\n");
+       sb.append("                EMPLOYEE INFORMATION           \n");
+       sb.append("    ============================================\n");
+       sb.append("       Employee Number : ").append(emp.employeeNumber).append("\n");
+       sb.append("       Name            : ").append(emp.name).append("\n");
+       sb.append("       Birthday        : ").append(emp.birthday).append("\n");
+       sb.append("    ============================================\n"); 
         displayArea.setText(sb.toString());
     }
 }
