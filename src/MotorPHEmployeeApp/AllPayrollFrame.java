@@ -83,5 +83,14 @@ private JTextArea reportArea;
 
         reportArea.setText(sb.toString());
         reportArea.setCaretPosition(0);
+        
+        // Persist the computed payroll fields, then confirm to the user
+        MotorPHEmployeeApp.writeComputedPayrollToCSV();
+
+        JOptionPane.showMessageDialog(this,
+                "Payroll computed for all employees.\n"
+                + "Results were generated and saved to payroll_computed.csv.",
+                "Computation Complete",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 }

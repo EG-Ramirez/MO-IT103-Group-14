@@ -267,6 +267,115 @@ public class MotorPHEmployeeApp {
         return sb.toString();
     }
 
+    /*
+     * Payroll Summary Builder
+     * Loops through every employee, reuses the Feature 3 computations in
+     * SalaryComputationModule, and accumulates company-wide totals. Returns
+     * the same StringBuilder text style as processPayroll so it can be shown
+     * inside a JOptionPane or JTextArea.
+     */
+    static String generatePayrollSummary() {
+        int totalEmployees = employees.length;
+        double totalGrossPay = 0;
+        double totalDeductions = 0;
+        double totalNetPay = 0;
+
+        for (Employee emp : employees) {
+            for (int m = 6; m <= 12; m++) {
+                double firstHours = computeHoursWorked(emp.attendanceIn[m][0], emp.attendanceOut[m][0]);
+                double secondHours = computeHoursWorked(emp.attendanceIn[m][1], emp.attendanceOut[m][1]);
+
+                if (firstHours == 0 && secondHours == 0) continue;
+
+                double gross = SalaryComputationModule.computeGrossPay(
+                        new double[]{firstHours, secondHours}, emp.hourlyRate);
+
+                double sss = SalaryComputationModule.computeSSS(new double[]{gross});
+                double philHealth = SalaryComputationModule.computePhilHealth(new double[]{gross});
+                double pagIbig = SalaryComputationModule.computePagIBIG(new double[]{gross});
+                double tax = SalaryComputationModule.computeWithholdingTax(
+                        new double[]{gross - (sss + philHealth + pagIbig)});
+
+                double deductions = SalaryComputationModule.computeDeductions(new double[]{sss, philHealth, pagIbig, tax});
+                double net = SalaryComputationModule.computeNetPay(new double[]{gross, deductions});
+
+                totalGrossPay += gross;
+                totalDeductions += deductions;
+                totalNetPay += net;
+            }
+        }
+
+        double averageNetPay = totalNetPay / totalEmployees;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("   ==================================================\n");
+        sb.append("                   PAYROLL SUMMARY                   \n");
+        sb.append("   ==================================================\n");
+        sb.append("      Total Employees   : ").append(totalEmployees).append("\n");
+        sb.append("      Total Gross Pay   : Php ").append(String.format("%,.2f", totalGrossPay)).append("\n");
+        sb.append("      Total Deductions  : Php ").append(String.format("%,.2f", totalDeductions)).append("\n");
+        sb.append("      Average Net Pay   : Php ").append(String.format("%,.2f", averageNetPay)).append("\n");
+        sb.append("   ==================================================\n");
+
+        return sb.toString();
+    }
+    
+    /*
+     * Computed Payroll Writer (Feature 3)
+     * After salaries are computed for all employees this saves the computed
+     * gross pay, total deductions, and net pay to a separate CSV. A separate
+     * file is used so the master employee record keeps its original format.
+     * Reuses the Feature 3 methods in SalaryComputationModule for consistency.
+     */
+    static void writeComputedPayrollToCSV() {
+        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(
+                new java.io.FileWriter("payroll_computed.csv"))) {
+
+            bw.write("Employee #,Last Name,First Name,Gross Pay,Total Deductions,Net Pay");
+            bw.newLine();
+
+            for (Employee emp : employees) {
+                double grossPay = 0;
+                double deductions = 0;
+                double netPay = 0;
+
+                for (int m = 6; m <= 12; m++) {
+                    double firstHours = computeHoursWorked(emp.attendanceIn[m][0], emp.attendanceOut[m][0]);
+                    double secondHours = computeHoursWorked(emp.attendanceIn[m][1], emp.attendanceOut[m][1]);
+
+                    if (firstHours == 0 && secondHours == 0) continue;
+
+                    double gross = SalaryComputationModule.computeGrossPay(
+                            new double[]{firstHours, secondHours}, emp.hourlyRate);
+
+                    double sss = SalaryComputationModule.computeSSS(new double[]{gross});
+                    double philHealth = SalaryComputationModule.computePhilHealth(new double[]{gross});
+                    double pagIbig = SalaryComputationModule.computePagIBIG(new double[]{gross});
+                    double tax = SalaryComputationModule.computeWithholdingTax(
+                            new double[]{gross - (sss + philHealth + pagIbig)});
+                    double totalDeductions = SalaryComputationModule.computeDeductions(new double[]{sss, philHealth, pagIbig, tax});
+
+                    grossPay += gross;
+                    deductions += totalDeductions;
+                    netPay += SalaryComputationModule.computeNetPay(new double[]{gross, totalDeductions});
+                }
+
+                String row = emp.employeeNumber + ","
+                        + emp.lastName + ","
+                        + emp.firstName + ","
+                        + grossPay + ","
+                        + deductions + ","
+                        + netPay;
+
+                bw.write(row);
+                bw.newLine();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error writing computed payroll file: " + e.getMessage());
+        }
+    }
+    
     // Convert HH.MM into decimal hours
     static double convertToHours(double timeValue) {
         int hour = (int) timeValue;

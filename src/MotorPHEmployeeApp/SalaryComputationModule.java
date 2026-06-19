@@ -22,34 +22,54 @@ public class SalaryComputationModule {
         return totalHours * hourlyRate;
     }
 
-    // Reuse the existing SSS table so the numbers stay the same.
-    public static double computeSSS(double grossPay) {
-        return MotorPHEmployeeApp.computeSSS(grossPay);
+// Reuse the existing SSS table so the numbers stay the same.
+    public static double computeSSS(double[] grossPay) {
+        double total = 0;
+        for (int i = 0; i < grossPay.length; i++) {
+            total = total + grossPay[i];
+        }
+        return MotorPHEmployeeApp.computeSSS(total);
     }
 
     // Reuse the existing PhilHealth computation.
-    public static double computePhilHealth(double grossPay) {
-        return MotorPHEmployeeApp.computePhilHealth(grossPay);
+    public static double computePhilHealth(double[] grossPay) {
+        double total = 0;
+        for (int i = 0; i < grossPay.length; i++) {
+            total = total + grossPay[i];
+        }
+        return MotorPHEmployeeApp.computePhilHealth(total);
     }
 
     // Reuse the existing Pag-IBIG computation.
-    public static double computePagIBIG(double grossPay) {
-        return MotorPHEmployeeApp.computePagibig(grossPay);
+    public static double computePagIBIG(double[] grossPay) {
+        double total = 0;
+        for (int i = 0; i < grossPay.length; i++) {
+            total = total + grossPay[i];
+        }
+        return MotorPHEmployeeApp.computePagibig(total);
     }
 
     // Reuse the existing income (withholding) tax computation.
-    public static double computeWithholdingTax(double taxableIncome) {
-        return MotorPHEmployeeApp.computeIncomeTax(taxableIncome);
+    public static double computeWithholdingTax(double[] taxableIncome) {
+        double total = 0;
+        for (int i = 0; i < taxableIncome.length; i++) {
+            total = total + taxableIncome[i];
+        }
+        return MotorPHEmployeeApp.computeIncomeTax(total);
     }
 
-    // Adds up all the government deductions.
-    public static double computeDeductions(double sss, double philHealth,
-                                           double pagIbig, double withholdingTax) {
-        return sss + philHealth + pagIbig + withholdingTax;
+    // Adds up all the government deductions passed in as an array.
+    public static double computeDeductions(double[] deductions) {
+        double total = 0;
+        for (int i = 0; i < deductions.length; i++) {
+            total = total + deductions[i];
+        }
+        return total;
     }
 
     // Net pay = gross pay minus total deductions.
-    public static double computeNetPay(double grossPay, double totalDeductions) {
-        return grossPay - totalDeductions;
+    // amounts[0] = gross pay, amounts[1] = total deductions
+    public static double computeNetPay(double[] amounts) {
+        return amounts[0] - amounts[1];
     }
 }
