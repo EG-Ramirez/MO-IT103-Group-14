@@ -41,9 +41,9 @@ private JTextArea reportArea;
         reportArea = new JTextArea();
         reportArea.setEditable(false);
         reportArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        reportArea.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         JScrollPane scrollPane = new JScrollPane(reportArea);
         scrollPane.setPreferredSize(new Dimension(580, 380));
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         // Bottom: utility buttons
         JPanel bottomPanel = new JPanel();
@@ -52,9 +52,18 @@ private JTextArea reportArea;
         bottomPanel.add(clearButton);
         bottomPanel.add(closeButton);
 
-        add(topPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
+        generateButton.setFocusable(false);
+        clearButton.setFocusable(false);
+        closeButton.setFocusable(false);
+
+        JPanel mainContentPanel = new JPanel(new BorderLayout());
+        mainContentPanel.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+
+        mainContentPanel.add(topPanel, BorderLayout.NORTH);
+        mainContentPanel.add(scrollPane, BorderLayout.CENTER);
+        mainContentPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        add(mainContentPanel);
 
         // Events
         

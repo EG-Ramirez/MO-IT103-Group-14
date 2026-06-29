@@ -82,13 +82,13 @@ public class EmployeeRecordsFrame extends JFrame {
         tableScroll.setBorder(BorderFactory.createTitledBorder("Employee List"));
 
         // -- Details area --
-        detailsArea = new JTextArea(7, 0);
+        detailsArea = new JTextArea(8, 0);
         detailsArea.setEditable(false);
         detailsArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
         JScrollPane detailsScroll = new JScrollPane(detailsArea);
         detailsScroll.setBorder(BorderFactory.createTitledBorder("Selected Employee Details"));
-        detailsScroll.setPreferredSize(new Dimension(820, 150));
+        detailsScroll.setPreferredSize(new Dimension(820, 165));
 
         // -- Buttons --
         addButton = new JButton("Add New Employee");
@@ -96,6 +96,12 @@ public class EmployeeRecordsFrame extends JFrame {
         closeButton = new JButton("Close");
         deleteButton = new JButton("Delete");
         updateButton = new JButton("Update");
+
+        addButton.setFocusable(false);
+        refreshButton.setFocusable(false);
+        closeButton.setFocusable(false);
+        deleteButton.setFocusable(false);
+        updateButton.setFocusable(false);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addButton);

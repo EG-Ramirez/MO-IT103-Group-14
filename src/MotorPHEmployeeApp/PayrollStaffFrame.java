@@ -2,6 +2,7 @@ package MotorPHEmployeeApp;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
@@ -53,16 +54,15 @@ public class PayrollStaffFrame extends JFrame {
         buttonPanel.add(payrollSummaryButton);
         buttonPanel.add(exitButton);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.add(titleLabel);
-        mainPanel.add(buttonPanel);
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
         add(mainPanel);
 
         // -- Action Events --
 
         //Opens the Add Employee UI window
-        inputEmployeeButton.addActionListener(new ActionListener() {     // NEW
+        inputEmployeeButton.addActionListener(new ActionListener() {     
             @Override
             public void actionPerformed(ActionEvent e) {
                 new EmployeeInputFrame().setVisible(true);
