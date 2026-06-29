@@ -42,7 +42,7 @@ public class EmployeeUpdateDeleteManager {
         return null;
     }
 
-     // Updates employee info 
+    // Updates employee info — dialog stays open until input is valid or user cancels 
     public void updateRecord(String empNo) {
 
         MotorPHEmployeeApp.Employee emp = findEmployee(empNo);
@@ -68,82 +68,140 @@ public class EmployeeUpdateDeleteManager {
         panel.add(new JLabel("Last Name:"));         panel.add(lastNameField);
         panel.add(new JLabel("First Name:"));        panel.add(firstNameField);
         panel.add(new JLabel("SSS Number:"));        panel.add(sssField);
+        panel.add(new JLabel("  e.g. 44-4506057-3"));panel.add(new JLabel(""));
         panel.add(new JLabel("PhilHealth Number:")); panel.add(philField);
+        panel.add(new JLabel("  e.g. 820126853951"));panel.add(new JLabel(""));
         panel.add(new JLabel("TIN:"));               panel.add(tinField);
+        panel.add(new JLabel("  e.g. 442-605-657-000"));panel.add(new JLabel(""));
         panel.add(new JLabel("Pag-IBIG Number:"));   panel.add(pagIbigField);
+        panel.add(new JLabel("  e.g. 691295330870")); panel.add(new JLabel(""));
         panel.add(new JLabel("Hourly Rate:"));       panel.add(rateField);
 
-        int result = JOptionPane.showConfirmDialog(
-                null, panel, "Update Employee Record",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        // Keep re-showing the dialog until all inputs are valid or the user cancels
+        while (true) {
+            int result = JOptionPane.showConfirmDialog(
+                    null, panel, "Update Employee Record",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        if (result != JOptionPane.OK_OPTION) return;
 
-        // Read back the edited values
-        String newEmpNo   = empNumberField.getText().trim();
-        String newLast    = lastNameField.getText().trim();
-        String newFirst   = firstNameField.getText().trim();
-        String newSSS     = sssField.getText().trim();
-        String newPhil    = philField.getText().trim();
-        String newTIN     = tinField.getText().trim();
-        String newPagIbig = pagIbigField.getText().trim();
-        String rateStr    = rateField.getText().trim();
+            if (result != JOptionPane.OK_OPTION) {
+                return;   // user cancelled — exit
+            }
+
+            // Read back the edited values
+            String newEmpNo = empNumberField.getText().trim();
+            String newLast = lastNameField.getText().trim();
+            String newFirst = firstNameField.getText().trim();
+            String newSSS = sssField.getText().trim();
+            String newPhil = philField.getText().trim();
+            String newTIN = tinField.getText().trim();
+            String newPagIbig = pagIbigField.getText().trim();
+            String rateStr = rateField.getText().trim();
+
 
         // All fields are required
-        if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty()
-                || newSSS.isEmpty() || newPhil.isEmpty() || newTIN.isEmpty()
-                || newPagIbig.isEmpty() || rateStr.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-            return;
-        }
+            // All fields are required
+            if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty()
+                    || newSSS.isEmpty() || newPhil.isEmpty() || newTIN.isEmpty()
+                    || newPagIbig.isEmpty() || rateStr.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "All fields are required!\nPlease fill in every field.");
+                continue;   // re-open the dialog with values intact
+            }
+
 
         // Employee Number must be numeric, positive, and not used by another employee
-        int empNumberValue;
+            int empNumberValue;
+            try {
+                empNumberValue = Integer.parseInt(newEmpNo);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Employee Number must be numeric!\nPlease enter a valid number.");
+                continue;
+            }
 
-        try {
-            empNumberValue = Integer.parseInt(newEmpNo);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Employee Number must be numeric!");
-            return;
-        }
+                    if (empNumberValue <= 0) {
+                JOptionPane.showMessageDialog(null, "Employee Number must be greater than 0!\nPlease correct the value.");
+                continue;
+            }
 
-        if (empNumberValue <= 0) {
-            JOptionPane.showMessageDialog(null, "Employee Number must be greater than 0!");
-            return;
-        }
 
-        MotorPHEmployeeApp.Employee existing = findEmployee(newEmpNo);
-        if (existing != null && existing != emp) {
-            JOptionPane.showMessageDialog(null, "Employee Number already exists!");
-            return;
-        }
+            // Employee Number must not be used by a different employee
+            MotorPHEmployeeApp.Employee existing = findEmployee(newEmpNo);
+            if (existing != null && existing != emp) {
+                JOptionPane.showMessageDialog(null, "Employee Number already exists!\nPlease use a unique number.");
+                continue;
+            }
 
-        double rate;
 
-        try {
-            rate = Double.parseDouble(rateStr.replace(",", ""));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Invalid rate input!");
-            return;
-        }
+            // SSS format: ##-#######-# (e.g. 44-4506057-3)
+            if (!newSSS.matches("\\d{2}-\\d{7}-\\d")) {
+                JOptionPane.showMessageDialog(null,
+                        "Invalid SSS Number format!\n"
+                        + "Expected format: 44-4506057-3\n"
+                        + "Please correct and try again.");
+                continue;
+            }
 
-        if (rate <= 0) {
-            JOptionPane.showMessageDialog(null, "Rate must be greater than 0!");
-            return;
-        }
 
-        // Apply changes to the employee object
-        emp.employeeNumber = newEmpNo;
-        emp.lastName = newLast;
-        emp.firstName = newFirst;
-        emp.name = newFirst + " " + newLast;   // keep the combined name in sync
-        emp.sssNumber = newSSS;
-        emp.philHealthNumber = newPhil;
-        emp.tin = newTIN;
-        emp.pagIbigNumber = newPagIbig;
-        emp.hourlyRate = rate;
+            // PhilHealth format: 12 digits (e.g. 820126853951)
+            if (!newPhil.matches("\\d{12}")) {
+                JOptionPane.showMessageDialog(null,
+                        "Invalid PhilHealth Number format!\n"
+                        + "Expected format: 820126853951 (12 digits)\n"
+                        + "Please correct and try again.");
+                continue;
+            }
 
-        JOptionPane.showMessageDialog(null, "Employee updated successfully!");
+
+            // TIN format: ###-###-###-### (e.g. 442-605-657-000)
+            if (!newTIN.matches("\\d{3}-\\d{3}-\\d{3}-\\d{3}")) {
+                JOptionPane.showMessageDialog(null,
+                        "Invalid TIN format!\n"
+                        + "Expected format: 442-605-657-000\n"
+                        + "Please correct and try again.");
+                continue;
+            }
+
+
+            // Pag-IBIG format: 12 digits (e.g. 691295330870)
+            if (!newPagIbig.matches("\\d{12}")) {
+                JOptionPane.showMessageDialog(null,
+                        "Invalid Pag-IBIG Number format!\n"
+                        + "Expected format: 691295330870 (12 digits)\n"
+                        + "Please correct and try again.");
+                continue;
+            }
+
+            // Hourly Rate must be a positive number
+            double rate;
+            try {
+                rate = Double.parseDouble(rateStr.replace(",", ""));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Invalid rate input!\nPlease enter a numeric value (e.g. 133.93).");
+                continue;
+            }
+
+            if (rate <= 0) {
+                JOptionPane.showMessageDialog(null, "Rate must be greater than 0!\nPlease enter a positive value.");
+                continue;
+            }
+
+            // All validations passed — apply changes to the employee object
+            emp.employeeNumber = newEmpNo;
+            emp.lastName = newLast;
+            emp.firstName = newFirst;
+            emp.name = newFirst + " " + newLast;   // keep the combined name in sync
+            emp.sssNumber = newSSS;
+            emp.philHealthNumber = newPhil;
+            emp.tin = newTIN;
+            emp.pagIbigNumber = newPagIbig;
+            emp.hourlyRate = rate;
+
+            JOptionPane.showMessageDialog(null, "Employee updated successfully!");
+            break;   // exit the loop — save is complete
+
+
+        
+    }
     }
 
       // Deletes an employee after confirmation
@@ -171,43 +229,10 @@ public class EmployeeUpdateDeleteManager {
         }
     }
 
-    // Saves everything back to the CSV file
+    // Saves everything back to the CSV file — delegates to EmployeeFileManager (centralized I/O)
     public void saveAllToCSV() {
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(fileName))) {
-            
-            // Write the header row first. loadEmployeesFromCSV always treats the
-            // first line as the header, so this keeps the first employee from
-            // being skipped and lets findColumnIndex locate the Hourly Rate column.
-            bw.write("Employee #,Last Name,First Name,Birthday,Address,Phone Number,"
-                    + "SSS #,PhilHealth #,TIN #,Pag-IBIG #,Status,Position,"
-                    + "Immediate Supervisor,Basic Salary,Rice Subsidy,Phone Allowance,"
-                    + "Clothing Allowance,Gross Semi-monthly Rate,Hourly Rate");
-            bw.newLine();
+                EmployeeFileManager.saveAllToCSV(employees, fileName);
 
-            for (MotorPHEmployeeApp.Employee emp : employees) {
-
-                // Same 19-column layout as writeEmployeeToCSV (Hourly Rate at column 18)
-                String row =
-                        emp.employeeNumber + "," +
-                        emp.lastName + "," +
-                        emp.firstName + "," +
-                        emp.birthday + "," +
-                        "N/A,N/A," +
-                        emp.sssNumber + "," +
-                        emp.philHealthNumber + "," +
-                        emp.tin + "," +
-                        emp.pagIbigNumber + "," +
-                        "N/A,N/A,N/A," +
-                        "0,0,0,0,0," +
-                        emp.hourlyRate;
-
-                bw.write(row);
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error saving file: " + e.getMessage());
-        }
     }
 }

@@ -77,56 +77,13 @@ public class MotorPHEmployeeApp {
     }
 
     /*
-     * CSV Employees Loader
+     * CSV Employees Loader — delegates to EmployeeFileManager (centralized I/O)
      */
+    
     static void loadEmployeesFromCSV(String mph_employees_record) {
-        ArrayList<Employee> list = new ArrayList<>();
-
-        try (BufferedReader br = new BufferedReader(new FileReader(mph_employees_record))) {
-            String headerLine = br.readLine();
-            int rateColumnIndex = findColumnIndex(headerLine, "Hourly Rate");
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-                Employee emp = parseEmployee(line, rateColumnIndex);
-                list.add(emp);
-            }
-        } catch (IOException e) {
-            System.out.println("Error reading employee file: " + e.getMessage());
-        }
+        ArrayList<Employee> list = EmployeeFileManager.loadEmployeesFromCSV(mph_employees_record);
 
         employees = list.toArray(new Employee[0]);
-    }
-
-    // Locate a column index by header name (fallback = 18)
-    static int findColumnIndex(String headerLine, String columnName) {
-        String[] headers = headerLine.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-        for (int i = 0; i < headers.length; i++) {
-            if (headers[i].trim().equalsIgnoreCase(columnName)) {
-                return i;
-            }
-        }
-        return 18;
-    }
-    // Build an Employee object from a single CSV line
-    static Employee parseEmployee(String line, int rateColumnIndex) {
-        String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-
-        String empNo = parts[0].trim();
-        String lastName = parts[1].trim();
-        String firstName = parts[2].trim();
-        String birthday = parts[3].trim();
-        double rate = Double.parseDouble(parts[rateColumnIndex].trim().replace(",", ""));
-
-        // Read government ID columns defensively — fall back to empty if not present
-        String sssNumber = (parts.length > 6) ? parts[6].trim() : "";
-        String philHealthNumber = (parts.length > 7) ? parts[7].trim() : "";
-        String tin = (parts.length > 8) ? parts[8].trim() : "";
-        String pagIbigNumber = (parts.length > 9) ? parts[9].trim() : "";
-
-        return new Employee(empNo, lastName, firstName, birthday, rate,
-                sssNumber, philHealthNumber, tin, pagIbigNumber);
     }
 
     // CSV Attendance Loader
@@ -169,41 +126,10 @@ public class MotorPHEmployeeApp {
 
     /*
      * Appends a new employee record to the CSV file.
-     * Column order matches the expected CSV structure:
-     *   0:empNo  1:lastName  2:firstName  3:birthday  4:address  5:phone
-     *   6:SSS    7:PhilHealth 8:TIN        9:PagIbig  10-12:N/A  13-17:0
-     *   18:hourlyRate
+     * Delegates to EmployeeFileManager (centralized I/O).
      */
     static void writeEmployeeToCSV(Employee emp) {
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(
-                new java.io.FileWriter("mph_employees_record.csv", true))) {
-
-            String row = emp.employeeNumber + ","
-                    + emp.lastName + ","
-                    + emp.firstName + ","
-                    + emp.birthday + ","
-                    + "N/A" + "," // address
-                    + "N/A" + "," // phone number
-                    + emp.sssNumber + ","
-                    + emp.philHealthNumber + ","
-                    + emp.tin + ","
-                    + emp.pagIbigNumber + ","
-                    + "N/A" + "," // status
-                    + "N/A" + "," // position
-                    + "N/A" + "," // immediate supervisor
-                    + "0" + "," // basic salary
-                    + "0" + "," // rice subsidy
-                    + "0" + "," // phone allowance
-                    + "0" + "," // clothing allowance
-                    + "0" + "," // gross semi-monthly rate
-                    + emp.hourlyRate;             // hourly rate (col 18)
-
-            bw.newLine();
-            bw.write(row);
-
-        } catch (IOException e) {
-            System.out.println("Error writing to employee file: " + e.getMessage());
-        }
+                EmployeeFileManager.writeEmployeeToCSV(emp);
     }
     
     
@@ -322,58 +248,11 @@ public class MotorPHEmployeeApp {
     
     /*
      * Computed Payroll Writer (Feature 3)
-     * After salaries are computed for all employees this saves the computed
-     * gross pay, total deductions, and net pay to a separate CSV. A separate
-     * file is used so the master employee record keeps its original format.
-     * Reuses the Feature 3 methods in SalaryComputationModule for consistency.
+     * Delegates to EmployeeFileManager (centralized I/O).
+     * Passing month=0 means all months (6-12) are included.
      */
     static void writeComputedPayrollToCSV() {
-        try (java.io.BufferedWriter bw = new java.io.BufferedWriter(
-                new java.io.FileWriter("payroll_computed.csv"))) {
-
-            bw.write("Employee #,Last Name,First Name,Gross Pay,Total Deductions,Net Pay");
-            bw.newLine();
-
-            for (Employee emp : employees) {
-                double grossPay = 0;
-                double deductions = 0;
-                double netPay = 0;
-
-                for (int m = 6; m <= 12; m++) {
-                    double firstHours = computeHoursWorked(emp.attendanceIn[m][0], emp.attendanceOut[m][0]);
-                    double secondHours = computeHoursWorked(emp.attendanceIn[m][1], emp.attendanceOut[m][1]);
-
-                    if (firstHours == 0 && secondHours == 0) continue;
-
-                    double gross = SalaryComputationModule.computeGrossPay(
-                            new double[]{firstHours, secondHours}, emp.hourlyRate);
-
-                    double sss = SalaryComputationModule.computeSSS(new double[]{gross});
-                    double philHealth = SalaryComputationModule.computePhilHealth(new double[]{gross});
-                    double pagIbig = SalaryComputationModule.computePagIBIG(new double[]{gross});
-                    double tax = SalaryComputationModule.computeWithholdingTax(
-                            new double[]{gross - (sss + philHealth + pagIbig)});
-                    double totalDeductions = SalaryComputationModule.computeDeductions(new double[]{sss, philHealth, pagIbig, tax});
-
-                    grossPay += gross;
-                    deductions += totalDeductions;
-                    netPay += SalaryComputationModule.computeNetPay(new double[]{gross, totalDeductions});
-                }
-
-                String row = emp.employeeNumber + ","
-                        + emp.lastName + ","
-                        + emp.firstName + ","
-                        + grossPay + ","
-                        + deductions + ","
-                        + netPay;
-
-                bw.write(row);
-                bw.newLine();
-            }
-
-        } catch (IOException e) {
-            System.out.println("Error writing computed payroll file: " + e.getMessage());
-        }
+                EmployeeFileManager.writeComputedPayrollToCSV(employees, 0);
     }
     
     // Convert HH.MM into decimal hours
