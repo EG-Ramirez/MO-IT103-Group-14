@@ -77,16 +77,15 @@ public class EmployeeUpdateDeleteManager {
         panel.add(new JLabel("  e.g. 691295330870")); panel.add(new JLabel(""));
         panel.add(new JLabel("Hourly Rate:"));       panel.add(rateField);
 
-        // Keep re-showing the dialog until all inputs are valid or the user cancels
+        // Keep re-showing the dialog until all inputs are valid or the user cancels.
+        // 'continue' re-opens the dialog with the user's existing input intact.
         while (true) {
             int result = JOptionPane.showConfirmDialog(
                     null, panel, "Update Employee Record",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-
-            if (result != JOptionPane.OK_OPTION) {
+            
+            if (result != JOptionPane.OK_OPTION)
                 return;   // user cancelled — exit
-            }
 
             // Read back the edited values
             String newEmpNo = empNumberField.getText().trim();
@@ -100,7 +99,6 @@ public class EmployeeUpdateDeleteManager {
 
 
         // All fields are required
-            // All fields are required
             if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty()
                     || newSSS.isEmpty() || newPhil.isEmpty() || newTIN.isEmpty()
                     || newPagIbig.isEmpty() || rateStr.isEmpty()) {
@@ -131,13 +129,17 @@ public class EmployeeUpdateDeleteManager {
                 continue;
             }
 
-
-            // SSS format: ##-#######-# (e.g. 44-4506057-3)
+            // SSS format: ##-#######-#  (e.g. 44-4506057-3)
             if (!newSSS.matches("\\d{2}-\\d{7}-\\d")) {
                 JOptionPane.showMessageDialog(null,
-                        "Invalid SSS Number format!\n"
-                        + "Expected format: 44-4506057-3\n"
-                        + "Please correct and try again.");
+                        "Invalid SSS Number format!\nExpected: 44-4506057-3");
+                continue;
+            }
+
+            // SSS duplicate check — exclude the employee being edited from the scan
+            if (isSssDuplicate(newSSS, emp)) {
+                JOptionPane.showMessageDialog(null,
+                        "SSS Number already belongs to another employee!");
                 continue;
             }
 
@@ -150,6 +152,13 @@ public class EmployeeUpdateDeleteManager {
                         + "Please correct and try again.");
                 continue;
             }
+            
+            // PhilHealth duplicate check
+            if (isPhilHealthDuplicate(newPhil, emp)) {
+                JOptionPane.showMessageDialog(null,
+                        "PhilHealth Number already belongs to another employee!");
+                continue;
+            }
 
 
             // TIN format: ###-###-###-### (e.g. 442-605-657-000)
@@ -160,6 +169,13 @@ public class EmployeeUpdateDeleteManager {
                         + "Please correct and try again.");
                 continue;
             }
+            
+            // TIN duplicate check
+            if (isTinDuplicate(newTIN, emp)) {
+                JOptionPane.showMessageDialog(null,
+                        "TIN already belongs to another employee!");
+                continue;
+            }
 
 
             // Pag-IBIG format: 12 digits (e.g. 691295330870)
@@ -168,6 +184,13 @@ public class EmployeeUpdateDeleteManager {
                         "Invalid Pag-IBIG Number format!\n"
                         + "Expected format: 691295330870 (12 digits)\n"
                         + "Please correct and try again.");
+                continue;
+            }
+            
+             // Pag-IBIG duplicate check
+            if (isPagIbigDuplicate(newPagIbig, emp)) {
+                JOptionPane.showMessageDialog(null,
+                        "Pag-IBIG Number already belongs to another employee!");
                 continue;
             }
 
@@ -234,5 +257,41 @@ public class EmployeeUpdateDeleteManager {
 
                 EmployeeFileManager.saveAllToCSV(employees, fileName);
 
+    }
+    
+    // Returns true if any employee OTHER than excludeEmp already has this SSS number
+    private boolean isSssDuplicate(String sssNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        for (MotorPHEmployeeApp.Employee emp : employees) {
+            if (emp == excludeEmp) continue;
+            if (sssNumber.equals(emp.sssNumber)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this PhilHealth number
+    private boolean isPhilHealthDuplicate(String philHealthNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        for (MotorPHEmployeeApp.Employee emp : employees) {
+            if (emp == excludeEmp) continue;
+            if (philHealthNumber.equals(emp.philHealthNumber)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this TIN
+    private boolean isTinDuplicate(String tin, MotorPHEmployeeApp.Employee excludeEmp) {
+        for (MotorPHEmployeeApp.Employee emp : employees) {
+            if (emp == excludeEmp) continue;
+            if (tin.equals(emp.tin)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this Pag-IBIG number
+    private boolean isPagIbigDuplicate(String pagIbigNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        for (MotorPHEmployeeApp.Employee emp : employees) {
+            if (emp == excludeEmp) continue;
+            if (pagIbigNumber.equals(emp.pagIbigNumber)) return true;
+        }
+        return false;
     }
 }

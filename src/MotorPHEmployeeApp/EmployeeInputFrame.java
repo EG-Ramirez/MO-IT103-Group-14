@@ -197,7 +197,7 @@ public class EmployeeInputFrame extends JFrame {
         fieldGbc.gridy = 8;
         formPanel.add(sssNumberField, fieldGbc);
 
-        sssNumberHint = makeHint("e.g. 33-1234567-8  —  required");
+        sssNumberHint = makeHint("e.g. 44-4506057-3  —  format: ##-#######-#");
         hintGbc.gridx = 1;
         hintGbc.gridy = 9;
         formPanel.add(sssNumberHint, hintGbc);
@@ -213,7 +213,7 @@ public class EmployeeInputFrame extends JFrame {
         fieldGbc.gridy = 10;
         formPanel.add(philHealthField, fieldGbc);
 
-        philHealthHint = makeHint("e.g. 123456789012  —  required");
+        philHealthHint = makeHint("e.g. 820126853951  —  12 digits");
         hintGbc.gridx = 1;
         hintGbc.gridy = 11;
         formPanel.add(philHealthHint, hintGbc);
@@ -229,7 +229,7 @@ public class EmployeeInputFrame extends JFrame {
         fieldGbc.gridy = 12;
         formPanel.add(tinField, fieldGbc);
 
-        tinHint = makeHint("e.g. 123-456-789-000  —  required");
+        tinHint = makeHint("e.g. 442-605-657-000  —  format: ###-###-###-###");
         hintGbc.gridx = 1;
         hintGbc.gridy = 13;
         formPanel.add(tinHint, hintGbc);
@@ -245,7 +245,7 @@ public class EmployeeInputFrame extends JFrame {
         fieldGbc.gridy = 14;
         formPanel.add(pagIbigField, fieldGbc);
 
-        pagIbigHint = makeHint("e.g. 121212121212  —  required");
+        pagIbigHint = makeHint("e.g. 691295330870  —  12 digits");
         hintGbc.gridx = 1;
         hintGbc.gridy = 15;
         formPanel.add(pagIbigHint, hintGbc);
@@ -326,10 +326,10 @@ public class EmployeeInputFrame extends JFrame {
         addFocusReset(lastNameField, lastNameHint, "e.g. dela Cruz  —  letters and spaces only");
         addFocusReset(firstNameField, firstNameHint, "e.g. Juan  —  letters and spaces only");
         addFocusReset(birthdayField, birthdayHint, "e.g. 06/19/1988  —  MM/DD/YYYY format");
-        addFocusReset(sssNumberField, sssNumberHint, "e.g. 33-1234567-8  —  required");
-        addFocusReset(philHealthField, philHealthHint, "e.g. 123456789012  —  required");
-        addFocusReset(tinField, tinHint, "e.g. 123-456-789-000  —  required");
-        addFocusReset(pagIbigField, pagIbigHint, "e.g. 121212121212  —  required");
+        addFocusReset(sssNumberField, sssNumberHint, "e.g. 44-4506057-3  —  format: ##-#######-#");
+        addFocusReset(philHealthField, philHealthHint, "e.g. 820126853951  —  12 digits");
+        addFocusReset(tinField, tinHint, "e.g. 442-605-657-000  —  format: ###-###-###-###");
+        addFocusReset(pagIbigField, pagIbigHint, "e.g. 691295330870  —  12 digits");
         addFocusReset(hourlyRateField, hourlyRateHint, "e.g. 133.93  —  must be a positive numeric amount");
     }
 
@@ -424,6 +424,12 @@ public class EmployeeInputFrame extends JFrame {
         if (sssNumber.isEmpty()) {
             setHint(sssNumberHint, "⚠ SSS Number is required.", HINT_ERROR);
             valid = false;
+        } else if (!sssNumber.matches("\\d{2}-\\d{7}-\\d")) {
+            setHint(sssNumberHint, "⚠ Invalid format. Expected: 44-4506057-3", HINT_ERROR);
+            valid = false;
+        } else if (isSssDuplicate(sssNumber, null)) {
+            setHint(sssNumberHint, "⚠ SSS Number already exists in the system.", HINT_ERROR);
+            valid = false;
         } else {
             setHint(sssNumberHint, "✓ SSS Number accepted.", HINT_SUCCESS);
         }
@@ -433,6 +439,12 @@ public class EmployeeInputFrame extends JFrame {
 
         if (philHealthNumber.isEmpty()) {
             setHint(philHealthHint, "⚠ PhilHealth Number is required.", HINT_ERROR);
+            valid = false;
+        } else if (!philHealthNumber.matches("\\d{12}")) {
+            setHint(philHealthHint, "⚠ Invalid format. Expected: 820126853951 (12 digits)", HINT_ERROR);
+            valid = false;
+        } else if (isPhilHealthDuplicate(philHealthNumber, null)) {
+            setHint(philHealthHint, "⚠ PhilHealth Number already exists in the system.", HINT_ERROR);
             valid = false;
         } else {
             setHint(philHealthHint, "✓ PhilHealth Number accepted.", HINT_SUCCESS);
@@ -444,6 +456,12 @@ public class EmployeeInputFrame extends JFrame {
         if (tin.isEmpty()) {
             setHint(tinHint, "⚠ TIN is required.", HINT_ERROR);
             valid = false;
+        } else if (!tin.matches("\\d{3}-\\d{3}-\\d{3}-\\d{3}")) {
+            setHint(tinHint, "⚠ Invalid format. Expected: 442-605-657-000", HINT_ERROR);
+            valid = false;
+        } else if (isTinDuplicate(tin, null)) {
+            setHint(tinHint, "⚠ TIN already exists in the system.", HINT_ERROR);
+            valid = false;
         } else {
             setHint(tinHint, "✓ TIN accepted.", HINT_SUCCESS);
         }
@@ -453,6 +471,12 @@ public class EmployeeInputFrame extends JFrame {
 
         if (pagIbigNumber.isEmpty()) {
             setHint(pagIbigHint, "⚠ Pag-IBIG Number is required.", HINT_ERROR);
+            valid = false;
+        } else if (!pagIbigNumber.matches("\\d{12}")) {
+            setHint(pagIbigHint, "⚠ Invalid format. Expected: 691295330870 (12 digits)", HINT_ERROR);
+            valid = false;
+        } else if (isPagIbigDuplicate(pagIbigNumber, null)) {
+            setHint(pagIbigHint, "⚠ Pag-IBIG Number already exists in the system.", HINT_ERROR);
             valid = false;
         } else {
             setHint(pagIbigHint, "✓ Pag-IBIG Number accepted.", HINT_SUCCESS);
@@ -563,10 +587,10 @@ public class EmployeeInputFrame extends JFrame {
         setHint(lastNameHint, "e.g. dela Cruz  —  letters and spaces only", HINT_NEUTRAL);
         setHint(firstNameHint, "e.g. Juan  —  letters and spaces only", HINT_NEUTRAL);
         setHint(birthdayHint, "e.g. 06/19/1988  —  MM/DD/YYYY format", HINT_NEUTRAL);
-        setHint(sssNumberHint, "e.g. 33-1234567-8  —  required", HINT_NEUTRAL);
-        setHint(philHealthHint, "e.g. 123456789012  —  required", HINT_NEUTRAL);
-        setHint(tinHint, "e.g. 123-456-789-000  —  required", HINT_NEUTRAL);
-        setHint(pagIbigHint, "e.g. 121212121212  —  required", HINT_NEUTRAL);
+        setHint(sssNumberHint, "e.g. 44-4506057-3  —  format: ##-#######-#", HINT_NEUTRAL);
+        setHint(philHealthHint, "e.g. 820126853951  —  12 digits", HINT_NEUTRAL);
+        setHint(tinHint, "e.g. 442-605-657-000  —  format: ###-###-###-###", HINT_NEUTRAL);
+        setHint(pagIbigHint, "e.g. 691295330870  —  12 digits", HINT_NEUTRAL);
         setHint(hourlyRateHint, "e.g. 133.93  —  must be a positive numeric amount", HINT_NEUTRAL);
 
         empNumberField.requestFocusInWindow();
@@ -609,5 +633,45 @@ public class EmployeeInputFrame extends JFrame {
                 }
             }
         });
+    }
+    
+    // Returns true if any employee OTHER than excludeEmp already has this SSS number
+    private boolean isSssDuplicate(String sssNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        if (MotorPHEmployeeApp.employees == null) return false;
+        for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
+            if (emp == excludeEmp) continue;
+            if (sssNumber.equals(emp.sssNumber)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this PhilHealth number
+    private boolean isPhilHealthDuplicate(String philHealthNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        if (MotorPHEmployeeApp.employees == null) return false;
+        for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
+            if (emp == excludeEmp) continue;
+            if (philHealthNumber.equals(emp.philHealthNumber)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this TIN
+    private boolean isTinDuplicate(String tin, MotorPHEmployeeApp.Employee excludeEmp) {
+        if (MotorPHEmployeeApp.employees == null) return false;
+        for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
+            if (emp == excludeEmp) continue;
+            if (tin.equals(emp.tin)) return true;
+        }
+        return false;
+    }
+
+    // Returns true if any employee OTHER than excludeEmp already has this Pag-IBIG number
+    private boolean isPagIbigDuplicate(String pagIbigNumber, MotorPHEmployeeApp.Employee excludeEmp) {
+        if (MotorPHEmployeeApp.employees == null) return false;
+        for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
+            if (emp == excludeEmp) continue;
+            if (pagIbigNumber.equals(emp.pagIbigNumber)) return true;
+        }
+        return false;
     }
 }

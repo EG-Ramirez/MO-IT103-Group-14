@@ -91,7 +91,7 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
 
         // Route to the correct portal
         if (username.equals("employee")) {
-            new EmployeePortalFrame().setVisible(true);
+            new EmployeePortalFrame(username).setVisible(true);
         } else {
             new PayrollStaffFrame().setVisible(true);
         }
