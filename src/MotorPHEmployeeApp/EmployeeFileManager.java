@@ -46,7 +46,13 @@ public class EmployeeFileManager {
                 list.add(emp);
             }
         } catch (IOException e) {
-            System.out.println("Error reading employee file: " + e.getMessage());
+        
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Unable to read employee records.\n\n"
+                    + e.getMessage(),
+                    "File Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
 
         return list;
@@ -72,7 +78,18 @@ public class EmployeeFileManager {
         String lastName  = parts[1].trim();
         String firstName = parts[2].trim();
         String birthday  = parts[3].trim();
-        double rate      = Double.parseDouble(parts[rateColumnIndex].trim().replace(",", ""));
+        double rate;
+     
+        try{
+        
+            rate = Double.parseDouble(parts[rateColumnIndex]
+                    .trim()
+                    .replace(",",""));
+            
+        }catch(NumberFormatException ex){
+        
+            rate = 0;
+        }
 
         // Government ID columns — fall back to empty string if column is absent
         String sssNumber        = (parts.length > 6) ? parts[6].trim() : "";
@@ -122,7 +139,13 @@ public class EmployeeFileManager {
             bw.write(row);
 
         } catch (IOException e) {
-            System.out.println("Error writing to employee file: " + e.getMessage());
+        
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Unable to read employee records.\n\n"
+                    + e.getMessage(),
+                    "File Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -233,9 +256,22 @@ public class EmployeeFileManager {
                 bw.write(row);
                 bw.newLine();
             }
-
+      
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Payroll successfully saved to\n"
+                    + PAYROLL_FILE,
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE);
+            
         } catch (IOException e) {
-            System.out.println("Error writing computed payroll file: " + e.getMessage());
+        
+                JOptionPane.showMessageDialog(
+                    null,
+                    "Unable to read employee records.\n\n"
+                    + e.getMessage(),
+                    "File Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
