@@ -1,84 +1,83 @@
 package MotorPHEmployeeApp;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.JComboBox;
+import java.awt.*;
+import javax.swing.*;
 
 public class AllPayrollFrame extends JFrame {
-private JTextArea reportArea;
+
+    private JTextArea reportArea;
     private JButton generateButton;
     private JButton closeButton;
 
     public AllPayrollFrame() {
         setTitle("All Employees Payroll");
-        setSize(720, 600);
+        setSize(750, 620);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Top label
-        JLabel titleLabel = new JLabel("Payroll Reports - All Employees", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 5, 0));
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(0, 102, 204));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        // Report area
+        JLabel titleLabel = new JLabel("MotorPH Payroll System");
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+
+        JLabel subtitle = new JLabel("All Employees Payroll Report");
+        subtitle.setForeground(Color.WHITE);
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+
+        JPanel textPanel = new JPanel(new GridLayout(2,1));
+        textPanel.setBackground(new Color(0,102,204));
+        textPanel.add(titleLabel);
+        textPanel.add(subtitle);
+
+        headerPanel.add(textPanel, BorderLayout.WEST);
+
+        
         reportArea = new JTextArea();
         reportArea.setEditable(false);
         reportArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        reportArea.setLineWrap(true);
-        reportArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(reportArea);
-        scrollPane.setPreferredSize(new Dimension(680, 460));
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        reportArea.setBackground(new Color(245, 248, 252));
+        reportArea.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
-        // Buttons
+        JScrollPane scrollPane = new JScrollPane(reportArea);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+      
         JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(Color.WHITE);
+
         generateButton = new JButton("Generate All");
         closeButton = new JButton("Close");
+
+        styleButton(generateButton);
+        styleButton(closeButton);
+
         bottomPanel.add(generateButton);
         bottomPanel.add(closeButton);
 
-        add(titleLabel, BorderLayout.NORTH);
+        add(headerPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Events
-        generateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleGenerateAll();
-            }
-        });
-
-        closeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
+        generateButton.addActionListener(e -> handleGenerateAll());
+        closeButton.addActionListener(e -> dispose());
+    }
+   private void styleButton(JButton btn) {
+        btn.setBackground(new Color(0, 102, 204));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
     }
 
     private void handleGenerateAll() {
+
         if (MotorPHEmployeeApp.employees == null || MotorPHEmployeeApp.employees.length == 0) {
-            JOptionPane.showMessageDialog(this,
-                    "No employees loaded.",
-                    "Empty Data",
-                    JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No employees loaded.");
             return;
         }
 
-        // Ask the user which payroll period to process
         String[] monthOptions = {
             "All Months",
             "June", "July", "August", "September",
@@ -91,47 +90,42 @@ private JTextArea reportArea;
                 this,
                 monthSelector,
                 "Select Payroll Period",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
+                JOptionPane.OK_CANCEL_OPTION);
 
-        if (choice != JOptionPane.OK_OPTION) {
-            return;   // user cancelled
-        }
-        // Map the selected label back to a month number (0 = all months)
+        if (choice != JOptionPane.OK_OPTION) return;
+
         int selectedIndex = monthSelector.getSelectedIndex();
         int filterMonth = (selectedIndex == 0) ? 0 : (selectedIndex + 5);
 
-        // Generate the report, skipping months that don't match the filter
-        String[] monthNames = {"", "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"};
+        String[] monthNames = {"", "January", "February", "March", "April", "May",
+            "June", "July", "August", "September", "October", "November", "December"};
 
         StringBuilder sb = new StringBuilder();
+
         for (MotorPHEmployeeApp.Employee emp : MotorPHEmployeeApp.employees) {
 
             int startMonth = (filterMonth == 0) ? 6 : filterMonth;
             int endMonth = (filterMonth == 0) ? 12 : filterMonth;
 
-            // Build a filtered report for this employee
-            StringBuilder empSb = new StringBuilder();
             boolean hasData = false;
 
-            empSb.append("   ==================================================\n");
-            empSb.append("                     PAYROLL REPORT                  \n");
-            empSb.append("   ==================================================\n");
-            empSb.append("      Employee Name : ").append(emp.name).append("\n");
-            empSb.append("      Employee ID   : ").append(emp.employeeNumber).append("\n");
-            empSb.append("      Birthday      : ").append(emp.birthday).append("\n");
-            empSb.append("   ==================================================\n\n");
+            
+            sb.append("\n====================================================\n");
+            sb.append(" EMPLOYEE: ").append(emp.name.toUpperCase()).append("\n");
+            sb.append(" ID       : ").append(emp.employeeNumber).append("\n");
+            sb.append(" BIRTHDAY : ").append(emp.birthday).append("\n");
+            sb.append("====================================================\n");
 
             for (int m = startMonth; m <= endMonth; m++) {
+
                 double firstHours = MotorPHEmployeeApp.computeHoursWorked(
                         emp.attendanceIn[m][0], emp.attendanceOut[m][0]);
+
                 double secondHours = MotorPHEmployeeApp.computeHoursWorked(
                         emp.attendanceIn[m][1], emp.attendanceOut[m][1]);
 
-                if (firstHours == 0 && secondHours == 0) {
-                    continue;
-                }
+                if (firstHours == 0 && secondHours == 0) continue;
+
                 hasData = true;
 
                 double firstGross = firstHours * emp.hourlyRate;
@@ -141,82 +135,52 @@ private JTextArea reportArea;
                 double sss = MotorPHEmployeeApp.computeSSS(combinedGross);
                 double philHealth = MotorPHEmployeeApp.computePhilHealth(combinedGross);
                 double pagIbig = MotorPHEmployeeApp.computePagibig(combinedGross);
-                double tax = MotorPHEmployeeApp.computeIncomeTax(
-                        combinedGross - (sss + philHealth + pagIbig));
+
+                double taxableIncome = combinedGross - (sss + philHealth + pagIbig);
+                double tax = MotorPHEmployeeApp.computeIncomeTax(taxableIncome);
+
                 double totalDeductions = sss + philHealth + pagIbig + tax;
+                double netPay = combinedGross - totalDeductions;
 
-                empSb.append("                --- Summary for: ").append(monthNames[m]).append(" ---\n\n");
-                empSb.append("      [ First Cutoff: 1 - 15 ]\n");
-                empSb.append(String.format(
-                    "      Hours Worked : %,.2f%n",
-                    firstHours));
-                empSb.append(String.format(
-                    "      Gross Pay    : Php %,.2f%n",
-                    firstGross));
-                empSb.append(String.format(
-                    "      Net Pay      : Php %,.2f%n",
-                    firstGross));
-                empSb.append("      [ Second Cutoff: 16 - 30 ]\n");
-                empSb.append(String.format(
-                    "      Hours Worked : %,.2f%n",
-                    secondHours));
-                empSb.append(String.format(
-                    "      Gross Pay    : Php %,.2f%n",
-                    secondGross));
-                empSb.append(String.format(
-                    "      Net Pay      : Php %,.2f%n",
-                    secondGross - totalDeductions));
-                empSb.append("      =========== Monthly Deductions ===========\n");
-                empSb.append(String.format(
-                    "      SSS          : Php %,.2f%n",
-                    sss));
-                empSb.append(String.format(
-                    "      PhilHealth   : Php %,.2f%n",
-                    philHealth));
-                empSb.append(String.format(
-                    "      Pag-IBIG     : Php %,.2f%n",
-                    pagIbig));
-                empSb.append(String.format(
-                    "      Tax          : Php %,.2f%n",
-                    tax));
-                empSb.append(String.format(
-                    "      Total        : Php %,.2f%n",
-                    totalDeductions));
-                empSb.append("   ==================================================\n\n");
+                // 🔵 MONTH SECTION
+                sb.append("\n>> ").append(monthNames[m]).append("\n");
+                sb.append("----------------------------------------------\n");
+
+                sb.append(String.format("  First Cutoff  : %6.2f hrs | Php %10.2f%n", firstHours, firstGross));
+                sb.append(String.format("  Second Cutoff : %6.2f hrs | Php %10.2f%n", secondHours, secondGross));
+
+                sb.append("\n  DEDUCTIONS\n");
+                sb.append(String.format("    SSS        : Php %,.2f%n", sss));
+                sb.append(String.format("    PhilHealth : Php %,.2f%n", philHealth));
+                sb.append(String.format("    Pag-IBIG   : Php %,.2f%n", pagIbig));
+                sb.append(String.format("    Tax        : Php %,.2f%n", tax));
+
+                sb.append("----------------------------------------------\n");
+                sb.append(String.format("  NET PAY      : Php %,.2f%n", netPay));
+                sb.append("==============================================\n");
             }
 
-            if (hasData) {
-                sb.append(empSb);
-                sb.append("\n");
+            if (!hasData) {
+                sb.append("\n  No records found.\n");
             }
+
+            sb.append("\n");
         }
 
-        if (sb.length() == 0) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "No payroll records found for the selected payroll period.",
-                    "No Records",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-            reportArea.setText("");
-            return;
-        }
-        
         reportArea.setText(sb.toString());
         reportArea.setCaretPosition(0);
 
-        // Persist the computed payroll fields, then confirm to the user
         EmployeeFileManager.writeComputedPayrollToCSV(
                 MotorPHEmployeeApp.employees,
                 filterMonth);
 
         String periodLabel = (filterMonth == 0) ? "All Months" : monthNames[filterMonth];
+
         JOptionPane.showMessageDialog(this,
-                "Payroll computed for all employees.\n"
+                "Payroll computed successfully.\n"
                 + "Period: " + periodLabel + "\n"
-                + "Results were generated and saved to payroll_computed.csv.",
-                "Computation Complete",
+                + "Saved to payroll_computed.csv.",
+                "Done",
                 JOptionPane.INFORMATION_MESSAGE);
-        
     }
 }

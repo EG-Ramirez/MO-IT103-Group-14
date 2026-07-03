@@ -1,20 +1,9 @@
 package MotorPHEmployeeApp;
 
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import java.awt.Dimension;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
 public class PayrollStaffFrame extends JFrame {
     private JButton inputEmployeeButton;
@@ -26,20 +15,60 @@ public class PayrollStaffFrame extends JFrame {
 
     public PayrollStaffFrame() {
         setTitle("Payroll Staff Portal");
-        setSize(400, 440);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+        setLayout(new GridLayout(1, 2));
 
-        // Title
+        //Left panel
+        JPanel leftPanel = new JPanel() {
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                Color c1 = new Color(0, 76, 153);
+                Color c2 = new Color(0, 128, 215);
+                GradientPaint gp = new GradientPaint(0, 0, c1, getWidth(), getHeight(), c2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(120, 40, 120, 40));
+
+        JLabel titleLeft = new JLabel("Payroll Staff Portal");
+        titleLeft.setForeground(Color.WHITE);
+        titleLeft.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLeft.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subLeft = new JLabel("Manage Payroll System");
+        subLeft.setForeground(Color.WHITE);
+        subLeft.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subLeft.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        leftPanel.add(titleLeft);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        leftPanel.add(subLeft);
+
+        // RIGHT PANEL (BUTTON CARD AREA)
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBackground(new Color(245, 245, 245));
+
+        JPanel cardPanel = new JPanel();
+        cardPanel.setPreferredSize(new Dimension(300, 300));
+        cardPanel.setBackground(Color.WHITE);
+        cardPanel.setLayout(new BorderLayout());
+        cardPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+
         JLabel titleLabel = new JLabel("Process Payroll", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
-        titleLabel.setAlignmentX(java.awt.Component.CENTER_ALIGNMENT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 15, 0));
 
-        // Buttons
         JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 10));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(15, 60, 25, 60));
+        buttonPanel.setBackground(Color.WHITE);
 
         inputEmployeeButton = new JButton("Add New Employee Record");
         oneEmployeeButton = new JButton("Process One Employee");
@@ -48,28 +77,36 @@ public class PayrollStaffFrame extends JFrame {
         payrollSummaryButton = new JButton("Generate Payroll Summary");
         exitButton = new JButton("Exit");
 
-        inputEmployeeButton.setFocusable(false);
-        oneEmployeeButton.setFocusable(false);
-        allEmployeesButton.setFocusable(false);
-        viewRecordsButton.setFocusable(false);
-        payrollSummaryButton.setFocusable(false);
-        exitButton.setFocusable(false);
-        
-        buttonPanel.add(inputEmployeeButton);
-        buttonPanel.add(oneEmployeeButton);
-        buttonPanel.add(allEmployeesButton);
-        buttonPanel.add(viewRecordsButton);
-        buttonPanel.add(payrollSummaryButton);
-        buttonPanel.add(exitButton);
+        JButton[] buttons = {
+            inputEmployeeButton,
+            oneEmployeeButton,
+            allEmployeesButton,
+            viewRecordsButton,
+            payrollSummaryButton,
+            exitButton
+        };
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
-        mainPanel.add(buttonPanel, BorderLayout.CENTER);
-        add(mainPanel);
+        for (JButton btn : buttons) {
+            btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            btn.setFocusPainted(false);
+            btn.setBackground(new Color(0, 128, 215));
+            btn.setForeground(Color.WHITE);
+            buttonPanel.add(btn);
+        }
 
-        // -- Action Events --
+        // Exit button color
+        exitButton.setBackground(new Color(0, 128, 215));
 
-        // Opens the Add Employee window.
+        cardPanel.add(titleLabel, BorderLayout.NORTH);
+        cardPanel.add(buttonPanel, BorderLayout.CENTER);
+
+        rightPanel.add(cardPanel);
+
+        add(leftPanel);
+        add(rightPanel);
+
+        // ---------------- EVENTS  ----------------
+
         inputEmployeeButton.addActionListener(new ActionListener() {     
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,7 +114,6 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        //Opens the Single Employee Processing Window
         oneEmployeeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -85,7 +121,6 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        // Opens the All Employees Payroll window
         allEmployeesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,8 +128,6 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        
-        // Opens the Employee Records window
         viewRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -102,7 +135,6 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        // Opens the Single Employee Payroll window
         payrollSummaryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -134,7 +166,6 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        //Closes the current frame window
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

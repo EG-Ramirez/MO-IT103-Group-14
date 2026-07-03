@@ -1,19 +1,9 @@
 package MotorPHEmployeeApp;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 public class LoginFrame extends JFrame {
 
@@ -24,40 +14,100 @@ public class LoginFrame extends JFrame {
     private static final String PASSWORD = "12345";
     private static final String EMPLOYEE = "employee";
     private static final String STAFF = "payroll_staff";
-    
+
     public LoginFrame() {
-        setTitle("MotorPH Payroll - Login");
-        setSize(400, 230);
+        setTitle("MotorPH Payroll System");
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+        setLayout(new GridLayout(1, 2));
 
-        // Title at the top
-        JLabel titleLabel = new JLabel("MotorPH Login", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 5, 0));
+        // LEFT PANEL
+        JPanel leftPanel = new JPanel() {
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                Color c1 = new Color(0, 76, 153);
+                Color c2 = new Color(0, 128, 215);
+                GradientPaint gp = new GradientPaint(0, 0, c1, getWidth(), getHeight(), c2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(100, 40, 100, 40));
 
-        // Input panel
-        JPanel inputPanel = new JPanel(new GridLayout(2, 2, 10, 10));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        JLabel systemLabel = new JLabel("MotorPH Payroll System");
+        systemLabel.setForeground(Color.WHITE);
+        systemLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        systemLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        inputPanel.add(new JLabel("Username:"));
+        JLabel subLabel = new JLabel("Secure HR Management");
+        subLabel.setForeground(Color.WHITE);
+        subLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        leftPanel.add(systemLabel);
+        leftPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        leftPanel.add(subLabel);
+
+        // RIGHT PANEL
+        JPanel rightPanel = new JPanel(new GridBagLayout());
+        rightPanel.setBackground(new Color(245, 245, 245));
+
+        JPanel loginCard = new JPanel();
+        loginCard.setPreferredSize(new Dimension(280, 220));
+        loginCard.setBackground(Color.WHITE);
+        loginCard.setLayout(new BoxLayout(loginCard, BoxLayout.Y_AXIS));
+        loginCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+
+        JLabel loginTitle = new JLabel("Login");
+        loginTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        loginTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel("Enter your credentials");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        subtitle.setForeground(Color.GRAY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         usernameField = new JTextField();
-        inputPanel.add(usernameField);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        usernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
-        inputPanel.add(new JLabel("Password:"));
         passwordField = new JPasswordField();
-        inputPanel.add(passwordField);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
-        // Button panel
-        JPanel buttonPanel = new JPanel();
-        loginButton = new JButton("Login");
-        buttonPanel.add(loginButton);
+        loginButton = new JButton("LOGIN");
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        loginButton.setBackground(new Color(0, 128, 215));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setFocusPainted(false);
+        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
-         //Makes the Enter key trigger the login button
+        loginCard.add(loginTitle);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 5)));
+        loginCard.add(subtitle);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        loginCard.add(usernameField);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 10)));
+        loginCard.add(passwordField);
+        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
+        loginCard.add(loginButton);
+
+        rightPanel.add(loginCard);
+
+        add(leftPanel);
+        add(rightPanel);
+
+        // ENTER key login
         getRootPane().setDefaultButton(loginButton);
 
-        // Pressing Enter on the username field moves focus to password
         usernameField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -65,14 +115,8 @@ public class LoginFrame extends JFrame {
             }
         });
 
-        add(titleLabel, BorderLayout.NORTH);
-        add(inputPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-        
-        // Set the initial focus to the Username field.
         usernameField.requestFocusInWindow();
 
-        // Login event
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -91,14 +135,12 @@ public class LoginFrame extends JFrame {
                     "Please enter both username and password.",
                     "Missing Information",
                     JOptionPane.WARNING_MESSAGE);
-
             return;
         }
-        
-        // Same rule as CP1: only "payroll_staff" or "employee" with password "12345"
+
         boolean validUser =
                 username.equals(STAFF)
-                || username.equals(EMPLOYEE);
+                        || username.equals(EMPLOYEE);
 
         boolean validPassword =
                 password.equals(PASSWORD);
@@ -112,8 +154,7 @@ public class LoginFrame extends JFrame {
             passwordField.requestFocusInWindow();
             return;
         }
-       
-        // Route to the correct portal
+
         if (username.equals(EMPLOYEE)) {
             new EmployeePortalFrame(username).setVisible(true);
         } else {
