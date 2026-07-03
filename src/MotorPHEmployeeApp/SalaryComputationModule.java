@@ -9,67 +9,57 @@ package MotorPHEmployeeApp;
  * the actual math is done here.
  */
 public class SalaryComputationModule {
+    
+    private static double sum(double[] values) {
+        double total = 0;
 
+        if (values != null) {
+            for (double value : values) {
+                total += value;
+            }
+        }
+
+        return total;
+    }
+    
     // Gross pay = total hours worked for the period * hourly rate.
     // The hours are passed in as an array (e.g. first and second cutoff).
     public static double computeGrossPay(double[] hoursWorked, double hourlyRate) {
-        double totalHours = 0;
-        if (hoursWorked != null) {
-            for (int i = 0; i < hoursWorked.length; i++) {
-                totalHours = totalHours + hoursWorked[i];
-            }
-        }
-        return totalHours * hourlyRate;
+        return sum(hoursWorked) * hourlyRate;
     }
 
-// Reuse the existing SSS table so the numbers stay the same.
+    // Uses the existing SSS table so the numbers stay the same.
     public static double computeSSS(double[] grossPay) {
-        double total = 0;
-        for (int i = 0; i < grossPay.length; i++) {
-            total = total + grossPay[i];
-        }
-        return MotorPHEmployeeApp.computeSSS(total);
+        return MotorPHEmployeeApp.computeSSS(sum(grossPay));
     }
 
-    // Reuse the existing PhilHealth computation.
+    // Uses the existing PhilHealth computation.
     public static double computePhilHealth(double[] grossPay) {
-        double total = 0;
-        for (int i = 0; i < grossPay.length; i++) {
-            total = total + grossPay[i];
-        }
-        return MotorPHEmployeeApp.computePhilHealth(total);
+        return MotorPHEmployeeApp.computePhilHealth(sum(grossPay));
     }
-
-    // Reuse the existing Pag-IBIG computation.
+    
+    // Uses the existing Pag-IBIG computation.
     public static double computePagIBIG(double[] grossPay) {
-        double total = 0;
-        for (int i = 0; i < grossPay.length; i++) {
-            total = total + grossPay[i];
-        }
-        return MotorPHEmployeeApp.computePagibig(total);
+        return MotorPHEmployeeApp.computePagibig(sum(grossPay));
     }
-
-    // Reuse the existing income (withholding) tax computation.
-    public static double computeWithholdingTax(double[] taxableIncome) {
-        double total = 0;
-        for (int i = 0; i < taxableIncome.length; i++) {
-            total = total + taxableIncome[i];
-        }
-        return MotorPHEmployeeApp.computeIncomeTax(total);
+    
+    // Uses the existing income (withholding) tax computation.
+    public static double computeWithholdingTax(double[] grossPay) {
+        return MotorPHEmployeeApp.computeIncomeTax(sum(grossPay));
     }
-
+    
     // Adds up all the government deductions passed in as an array.
     public static double computeDeductions(double[] deductions) {
-        double total = 0;
-        for (int i = 0; i < deductions.length; i++) {
-            total = total + deductions[i];
-        }
-        return total;
+        return sum(deductions);
     }
 
     // Net pay = gross pay minus total deductions.
     // amounts[0] = gross pay, amounts[1] = total deductions
     public static double computeNetPay(double[] amounts) {
+        if (amounts == null || amounts.length < 2) {
+            return 0;
+        }
+
         return amounts[0] - amounts[1];
     }
 }
