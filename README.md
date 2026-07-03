@@ -76,6 +76,7 @@ The system is divided into the following modules:
 
 ## Development Team
 **Group 14**
+
 Carreon, Rey Lorenz<br>
 Gadil, Ysabelle<br>
 Layson, John Mervin<br>
