@@ -36,6 +36,8 @@ private JTextArea reportArea;
         reportArea = new JTextArea();
         reportArea.setEditable(false);
         reportArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        reportArea.setLineWrap(true);
+        reportArea.setWrapStyleWord(true);
         JScrollPane scrollPane = new JScrollPane(reportArea);
         scrollPane.setPreferredSize(new Dimension(680, 460));
         scrollPane.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -145,19 +147,41 @@ private JTextArea reportArea;
 
                 empSb.append("                --- Summary for: ").append(monthNames[m]).append(" ---\n\n");
                 empSb.append("      [ First Cutoff: 1 - 15 ]\n");
-                empSb.append("      Hours Worked : ").append(firstHours).append("\n");
-                empSb.append("      Gross Pay    : Php ").append(firstGross).append("\n");
-                empSb.append("      Net Pay      : Php ").append(firstGross).append("\n");
+                empSb.append(String.format(
+                    "      Hours Worked : %,.2f%n",
+                    firstHours));
+                empSb.append(String.format(
+                    "      Gross Pay    : Php %,.2f%n",
+                    firstGross));
+                empSb.append(String.format(
+                    "      Net Pay      : Php %,.2f%n",
+                    firstGross));
                 empSb.append("      [ Second Cutoff: 16 - 30 ]\n");
-                empSb.append("      Hours Worked : ").append(secondHours).append("\n");
-                empSb.append("      Gross Pay    : Php ").append(secondGross).append("\n");
-                empSb.append("      Net Pay      : Php ").append(secondGross - totalDeductions).append("\n");
+                empSb.append(String.format(
+                    "      Hours Worked : %,.2f%n",
+                    secondHours));
+                empSb.append(String.format(
+                    "      Gross Pay    : Php %,.2f%n",
+                    secondGross));
+                empSb.append(String.format(
+                    "      Net Pay      : Php %,.2f%n",
+                    secondGross - totalDeductions));
                 empSb.append("      =========== Monthly Deductions ===========\n");
-                empSb.append("      SSS          : Php ").append(sss).append("\n");
-                empSb.append("      PhilHealth   : Php ").append(philHealth).append("\n");
-                empSb.append("      Pag-IBIG     : Php ").append(pagIbig).append("\n");
-                empSb.append("      Tax          : Php ").append(tax).append("\n");
-                empSb.append("      Total        : Php ").append(totalDeductions).append("\n\n");
+                empSb.append(String.format(
+                    "      SSS          : Php %,.2f%n",
+                    sss));
+                empSb.append(String.format(
+                    "      PhilHealth   : Php %,.2f%n",
+                    philHealth));
+                empSb.append(String.format(
+                    "      Pag-IBIG     : Php %,.2f%n",
+                    pagIbig));
+                empSb.append(String.format(
+                    "      Tax          : Php %,.2f%n",
+                    tax));
+                empSb.append(String.format(
+                    "      Total        : Php %,.2f%n",
+                    totalDeductions));
                 empSb.append("   ==================================================\n\n");
             }
 
@@ -167,11 +191,24 @@ private JTextArea reportArea;
             }
         }
 
+        if (sb.length() == 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No payroll records found for the selected payroll period.",
+                    "No Records",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+            reportArea.setText("");
+            return;
+        }
+        
         reportArea.setText(sb.toString());
         reportArea.setCaretPosition(0);
 
         // Persist the computed payroll fields, then confirm to the user
-        MotorPHEmployeeApp.writeComputedPayrollToCSV();
+        EmployeeFileManager.writeComputedPayrollToCSV(
+                MotorPHEmployeeApp.employees,
+                filterMonth);
 
         String periodLabel = (filterMonth == 0) ? "All Months" : monthNames[filterMonth];
         JOptionPane.showMessageDialog(this,
@@ -180,5 +217,6 @@ private JTextArea reportArea;
                 + "Results were generated and saved to payroll_computed.csv.",
                 "Computation Complete",
                 JOptionPane.INFORMATION_MESSAGE);
+        
     }
 }
