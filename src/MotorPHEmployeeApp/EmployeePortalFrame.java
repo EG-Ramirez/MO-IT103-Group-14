@@ -12,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import javax.swing.JScrollPane;
 
 public class EmployeePortalFrame extends JFrame {
     private JButton exitButton;
@@ -33,7 +34,7 @@ public class EmployeePortalFrame extends JFrame {
         if (username != null && username.equals("employee")) {
             String input = JOptionPane.showInputDialog(
                     null,
-                    "Please enter your Employee Number to continue:",
+                    "Please enter your assigned Employee Number.",
                     "Employee Login",
                     JOptionPane.QUESTION_MESSAGE);
 
@@ -67,7 +68,10 @@ public class EmployeePortalFrame extends JFrame {
         displayArea = new JTextArea();
         displayArea.setEditable(false);
         displayArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        displayArea.setLineWrap(true);
+        displayArea.setWrapStyleWord(true);
         displayArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        displayArea.setBackground(getBackground());
 
         // Populate the display immediately using the verified employee number
         if (empNo != null) {
@@ -89,7 +93,8 @@ public class EmployeePortalFrame extends JFrame {
         bottomPanel.add(exitButton);
 
         add(titleLabel, BorderLayout.NORTH);
-        add(displayArea, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(displayArea);
+        add(scrollPane, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
         exitButton.addActionListener(new ActionListener() {
