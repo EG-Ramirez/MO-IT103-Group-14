@@ -27,10 +27,12 @@ public class EmployeeUpdateDeleteManager {
         return employees;
     }
     
-     // Just finds an employee using their ID
+    // Finds an employee by employee number.
     public MotorPHEmployeeApp.Employee findEmployee(String empNo) {
 
-        if (empNo == null) return null;
+        if (empNo == null) {
+            return null;
+        }
 
         for (MotorPHEmployeeApp.Employee emp : employees) {
 
@@ -61,7 +63,8 @@ public class EmployeeUpdateDeleteManager {
         JTextField philField      = new JTextField(emp.philHealthNumber);
         JTextField tinField       = new JTextField(emp.tin);
         JTextField pagIbigField   = new JTextField(emp.pagIbigNumber);
-        JTextField rateField      = new JTextField(String.valueOf(emp.hourlyRate));
+        JTextField rateField =
+            new JTextField(String.format("%.2f", emp.hourlyRate));
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
         panel.add(new JLabel("Employee Number:"));   panel.add(empNumberField);
@@ -111,7 +114,7 @@ public class EmployeeUpdateDeleteManager {
             int empNumberValue;
             try {
                 empNumberValue = Integer.parseInt(newEmpNo);
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Employee Number must be numeric!\nPlease enter a valid number.");
                 continue;
             }
@@ -198,7 +201,7 @@ public class EmployeeUpdateDeleteManager {
             double rate;
             try {
                 rate = Double.parseDouble(rateStr.replace(",", ""));
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Invalid rate input!\nPlease enter a numeric value (e.g. 133.93).");
                 continue;
             }
@@ -233,13 +236,18 @@ public class EmployeeUpdateDeleteManager {
         MotorPHEmployeeApp.Employee emp = findEmployee(empNo);
 
         if (emp == null) {
-            JOptionPane.showMessageDialog(null, "Employee not found!");
+            JOptionPane.showMessageDialog(
+                null,
+                "Employee " + empNo + " was not found.",
+                "Not Found",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         int confirm = JOptionPane.showConfirmDialog(
                 null,
-                "Are you sure you want to delete this employee?",
+                "Are you sure you want to delete employee "
+                + emp.employeeNumber + " (" + emp.name + ")?",
                 "Confirm Delete",
                 JOptionPane.YES_NO_OPTION
         );
@@ -262,7 +270,9 @@ public class EmployeeUpdateDeleteManager {
     // Returns true if any employee OTHER than excludeEmp already has this SSS number
     private boolean isSssDuplicate(String sssNumber, MotorPHEmployeeApp.Employee excludeEmp) {
         for (MotorPHEmployeeApp.Employee emp : employees) {
-            if (emp == excludeEmp) continue;
+            if (emp == excludeEmp) {
+            continue;
+        }
             if (sssNumber.equals(emp.sssNumber)) return true;
         }
         return false;
