@@ -256,13 +256,6 @@ public class EmployeeFileManager {
                 bw.write(row);
                 bw.newLine();
             }
-      
-                JOptionPane.showMessageDialog(
-                    null,
-                    "Payroll successfully saved to\n"
-                    + PAYROLL_FILE,
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE);
             
         } catch (IOException e) {
         
