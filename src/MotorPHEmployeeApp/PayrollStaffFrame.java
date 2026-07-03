@@ -6,7 +6,6 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,6 +13,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
+import java.awt.Dimension;
+import javax.swing.JScrollPane;
 
 public class PayrollStaffFrame extends JFrame {
     private JButton inputEmployeeButton;
@@ -47,6 +48,13 @@ public class PayrollStaffFrame extends JFrame {
         payrollSummaryButton = new JButton("Generate Payroll Summary");
         exitButton = new JButton("Exit");
 
+        inputEmployeeButton.setFocusable(false);
+        oneEmployeeButton.setFocusable(false);
+        allEmployeesButton.setFocusable(false);
+        viewRecordsButton.setFocusable(false);
+        payrollSummaryButton.setFocusable(false);
+        exitButton.setFocusable(false);
+        
         buttonPanel.add(inputEmployeeButton);
         buttonPanel.add(oneEmployeeButton);
         buttonPanel.add(allEmployeesButton);
@@ -61,7 +69,7 @@ public class PayrollStaffFrame extends JFrame {
 
         // -- Action Events --
 
-        //Opens the Add Employee UI window
+        // Opens the Add Employee window.
         inputEmployeeButton.addActionListener(new ActionListener() {     
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -77,7 +85,7 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        //Opens the Complete Summary Board Window
+        // Opens the All Employees Payroll window
         allEmployeesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,7 +94,7 @@ public class PayrollStaffFrame extends JFrame {
         });
 
         
-        // Opens the Employee Records table view
+        // Opens the Employee Records window
         viewRecordsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,7 +102,7 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
-        //Opens the company-wide Payroll Summary dialog
+        // Opens the Single Employee Payroll window
         payrollSummaryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -111,9 +119,16 @@ public class PayrollStaffFrame extends JFrame {
                 JTextArea summaryArea = new JTextArea(summary);
                 summaryArea.setEditable(false);
                 summaryArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+                summaryArea.setLineWrap(true);
+                summaryArea.setWrapStyleWord(true);
+                summaryArea.setCaretPosition(0);
 
-                JOptionPane.showMessageDialog(PayrollStaffFrame.this,
-                        summaryArea,
+                JScrollPane scrollPane = new JScrollPane(summaryArea);
+                scrollPane.setPreferredSize(new Dimension(600, 400));
+
+                JOptionPane.showMessageDialog(
+                        PayrollStaffFrame.this,
+                        scrollPane,
                         "Payroll Summary",
                         JOptionPane.INFORMATION_MESSAGE);
             }
