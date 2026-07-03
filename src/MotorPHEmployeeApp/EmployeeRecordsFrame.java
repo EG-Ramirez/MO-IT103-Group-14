@@ -52,7 +52,12 @@ public class EmployeeRecordsFrame extends JFrame {
         buildUI();
         loadTableData();
     }
-
+    
+    private void clearSelection() {
+        employeeTable.clearSelection();
+        detailsArea.setText("");
+    }
+    
     private void buildUI() {
         // -- Title --
         JLabel titleLabel = new JLabel("Employee Records", SwingConstants.CENTER);
@@ -76,6 +81,8 @@ public class EmployeeRecordsFrame extends JFrame {
         employeeTable.setFont(new Font("Arial", Font.PLAIN, 12));
         employeeTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
         employeeTable.setRowHeight(20);
+        employeeTable.setAutoCreateRowSorter(true);
+        employeeTable.setFillsViewportHeight(true);
         employeeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         JScrollPane tableScroll = new JScrollPane(employeeTable);
@@ -85,6 +92,8 @@ public class EmployeeRecordsFrame extends JFrame {
         detailsArea = new JTextArea(8, 0);
         detailsArea.setEditable(false);
         detailsArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        detailsArea.setLineWrap(true);
+        detailsArea.setWrapStyleWord(true);
 
         JScrollPane detailsScroll = new JScrollPane(detailsArea);
         detailsScroll.setBorder(BorderFactory.createTitledBorder("Selected Employee Details"));
@@ -141,6 +150,13 @@ public class EmployeeRecordsFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 MotorPHEmployeeApp.loadEmployeesFromCSV("mph_employees_record.csv");
                 loadTableData();
+                clearSelection();
+                
+                JOptionPane.showMessageDialog(
+                    EmployeeRecordsFrame.this,
+                    "Employee records have been refreshed.",
+                    "Refresh Complete",
+                    JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
@@ -152,9 +168,9 @@ public class EmployeeRecordsFrame extends JFrame {
         });
     
        updateButton.addActionListener(e -> {
-            int row = employeeTable.getSelectedRow();
-            if (row < 0 || MotorPHEmployeeApp.employees == null
-                    || row >= MotorPHEmployeeApp.employees.length) {
+            int viewRow = employeeTable.getSelectedRow();
+
+            if (MotorPHEmployeeApp.employees == null || viewRow < 0) {
                 JOptionPane.showMessageDialog(this,
                         "Please select an employee from the table first.",
                         "No Selection",
@@ -162,6 +178,12 @@ public class EmployeeRecordsFrame extends JFrame {
                 return;
             }
 
+            int row = employeeTable.convertRowIndexToModel(viewRow);
+           
+            if (row < 0 || row >= MotorPHEmployeeApp.employees.length) {
+                return;
+            }
+            
             String id = MotorPHEmployeeApp.employees[row].employeeNumber;
 
             EmployeeUpdateDeleteManager manager = buildManager();
@@ -169,19 +191,27 @@ public class EmployeeRecordsFrame extends JFrame {
 
             // Sync the global array with the manager's list, then persist
             MotorPHEmployeeApp.employees =
-                    manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
+            manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
             manager.saveAllToCSV();
             loadTableData();
+            clearSelection();
         });
 
         deleteButton.addActionListener(e -> {
-            int row = employeeTable.getSelectedRow();
-            if (row < 0 || MotorPHEmployeeApp.employees == null
-                    || row >= MotorPHEmployeeApp.employees.length) {
+            int viewRow = employeeTable.getSelectedRow();
+
+            if (MotorPHEmployeeApp.employees == null || viewRow < 0) {
+                detailsArea.setText("");
                 JOptionPane.showMessageDialog(this,
                         "Please select an employee from the table first.",
                         "No Selection",
                         JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int row = employeeTable.convertRowIndexToModel(viewRow);
+            
+            if (row < 0 || row >= MotorPHEmployeeApp.employees.length) {
                 return;
             }
 
@@ -192,9 +222,10 @@ public class EmployeeRecordsFrame extends JFrame {
 
             // Sync the global array with the manager's list, then persist
             MotorPHEmployeeApp.employees =
-                    manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
+            manager.getEmployees().toArray(new MotorPHEmployeeApp.Employee[0]);
             manager.saveAllToCSV();
             loadTableData();
+            clearSelection();
         });
 
         // Row selection — populate details area
@@ -208,7 +239,6 @@ public class EmployeeRecordsFrame extends JFrame {
         });
     }
 
-    
     // Builds a manager backed by the current in-memory employees.
     // The list holds the same Employee objects as the global array, so an
     // update applies in place; a delete is synced back by the caller.
@@ -246,10 +276,16 @@ public class EmployeeRecordsFrame extends JFrame {
 
     // Show full details for the selected table row
     private void showSelectedDetails() {
-        int row = employeeTable.getSelectedRow();
+        int viewRow = employeeTable.getSelectedRow();
+       
+        if (MotorPHEmployeeApp.employees == null || viewRow < 0) {
+            detailsArea.setText("");
+            return;
+        }
 
-        if (row < 0 || MotorPHEmployeeApp.employees == null
-                || row >= MotorPHEmployeeApp.employees.length) {
+        int row = employeeTable.convertRowIndexToModel(viewRow);
+      
+        if (row < 0 || row >= MotorPHEmployeeApp.employees.length) {
             detailsArea.setText("");
             return;
         }
@@ -264,7 +300,9 @@ public class EmployeeRecordsFrame extends JFrame {
         sb.append("PhilHealth No.  : ").append(emp.philHealthNumber).append("\n");
         sb.append("TIN             : ").append(emp.tin).append("\n");
         sb.append("Pag-IBIG No.    : ").append(emp.pagIbigNumber).append("\n");
-        sb.append("Hourly Rate     : \u20b1").append(emp.hourlyRate);
+        sb.append(String.format(
+                  "Hourly Rate     : ₱%,.2f",
+                  emp.hourlyRate));
 
         detailsArea.setText(sb.toString());
         detailsArea.setCaretPosition(0);
