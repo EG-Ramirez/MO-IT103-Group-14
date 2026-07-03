@@ -28,7 +28,7 @@ private JTextArea reportArea;
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Top panel: input + generate button
+        // Top panel: employee number input and Generate button
         JPanel topPanel = new JPanel();
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
         topPanel.add(new JLabel("Employee Number:"));
@@ -41,11 +41,13 @@ private JTextArea reportArea;
         reportArea = new JTextArea();
         reportArea.setEditable(false);
         reportArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        reportArea.setLineWrap(true);
+        reportArea.setWrapStyleWord(true);
         reportArea.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
         JScrollPane scrollPane = new JScrollPane(reportArea);
         scrollPane.setPreferredSize(new Dimension(580, 380));
 
-        // Bottom: utility buttons
+        // Bottom panel: Clear and Close buttons
         JPanel bottomPanel = new JPanel();
         clearButton = new JButton("Clear");
         closeButton = new JButton("Close");
@@ -87,6 +89,7 @@ private JTextArea reportArea;
             public void actionPerformed(ActionEvent e) {
                 reportArea.setText("");
                 empNumberField.setText("");
+                empNumberField.requestFocusInWindow();
             }
         });
 
