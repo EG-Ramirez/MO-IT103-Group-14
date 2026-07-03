@@ -15,10 +15,16 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public class LoginFrame extends JFrame {private JTextField usernameField;
+public class LoginFrame extends JFrame {
+
+    private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
 
+    private static final String PASSWORD = "12345";
+    private static final String EMPLOYEE = "employee";
+    private static final String STAFF = "payroll_staff";
+    
     public LoginFrame() {
         setTitle("MotorPH Payroll - Login");
         setSize(400, 230);
@@ -48,7 +54,7 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
         loginButton = new JButton("Login");
         buttonPanel.add(loginButton);
 
-         //Makes the Enter key trigger the login button automatically
+         //Makes the Enter key trigger the login button
         getRootPane().setDefaultButton(loginButton);
 
         // Pressing Enter on the username field moves focus to password
@@ -62,6 +68,9 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
         add(titleLabel, BorderLayout.NORTH);
         add(inputPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Set the initial focus to the Username field.
+        usernameField.requestFocusInWindow();
 
         // Login event
         loginButton.addActionListener(new ActionListener() {
@@ -76,21 +85,36 @@ public class LoginFrame extends JFrame {private JTextField usernameField;
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter both username and password.",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+
+            return;
+        }
+        
         // Same rule as CP1: only "payroll_staff" or "employee" with password "12345"
-        if (!(password.equals("12345") &&
-                (username.equals("payroll_staff") || username.equals("employee")))) {
+        boolean validUser =
+                username.equals(STAFF)
+                || username.equals(EMPLOYEE);
+
+        boolean validPassword =
+                password.equals(PASSWORD);
+
+        if (!validUser || !validPassword) {
             JOptionPane.showMessageDialog(this,
                     "Incorrect username and/or password!",
                     "Login Failed",
                     JOptionPane.ERROR_MESSAGE);
-            usernameField.setText("");
             passwordField.setText("");
-            usernameField.requestFocusInWindow();
+            passwordField.requestFocusInWindow();
             return;
         }
-
+       
         // Route to the correct portal
-        if (username.equals("employee")) {
+        if (username.equals(EMPLOYEE)) {
             new EmployeePortalFrame(username).setVisible(true);
         } else {
             new PayrollStaffFrame().setVisible(true);
