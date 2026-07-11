@@ -18,6 +18,7 @@ public class EmployeeInputFrame extends JFrame {
     private JTextField txtEmpNo, txtName, txtRate, txtHours, txtDeductions;
     private JLabel lblGrossPay, lblNetPay;
     private JButton btnCompute, btnSave, btnCancel, btnClear;
+    private Runnable onSaveCallback; 
 
     private static final String CSV_FILE = "mph_employees_record.csv";
     private boolean editMode = false;
@@ -27,8 +28,14 @@ public class EmployeeInputFrame extends JFrame {
 
     /** Open in Add-New mode */
     public EmployeeInputFrame() {
-        this(null);
+        this((String[]) null);
     }
+
+    public EmployeeInputFrame(Runnable onSaveCallback) {
+        this.onSaveCallback = onSaveCallback ;
+        initComponents();
+        setVisible(true);
+    }    
 
     /** Open in Edit mode pre-filled with an existing employee */
     public EmployeeInputFrame(String[] employeeData) {
@@ -266,6 +273,9 @@ public class EmployeeInputFrame extends JFrame {
             JOptionPane.showMessageDialog(this,
                     (editMode ? "Record updated" : "Employee added") + " successfully!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
+            if (onSaveCallback != null) {
+                onSaveCallback.run () ;
+            }
             dispose();
         } catch (IOException e) {
             showError("Could not save to CSV:\n" + e.getMessage());
