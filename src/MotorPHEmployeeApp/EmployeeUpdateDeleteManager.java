@@ -1,6 +1,8 @@
 package MotorPHEmployeeApp;
 
 import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
 import javax.swing.JLabel;
@@ -65,19 +67,51 @@ public class EmployeeUpdateDeleteManager {
         JTextField pagIbigField   = new JTextField(emp.pagIbigNumber);
         JTextField rateField =
             new JTextField(String.format("%.2f", emp.hourlyRate));
+        
+        // Restrict each field to only the kind of character it accepts,
+        // same rule set used when adding a new employee.
+        restrictToDigits(empNumberField, 5);
+        restrictToLetters(lastNameField);
+        restrictToLetters(firstNameField);
+        restrictToDigits(sssField, 20);
+        restrictToDigits(philField, 12);
+        restrictToDigits(tinField, 20);
+        restrictToDigits(pagIbigField, 12);
+        restrictToDecimal(rateField);
+
+        // Auto-insert dashes for SSS and TIN as the user types
+        sssField.addKeyListener(new KeyAdapter() {
+            @Override public void keyReleased(KeyEvent e) {
+                String formatted = formatSSS(sssField.getText());
+                if (!formatted.equals(sssField.getText())) {
+                    sssField.setText(formatted);
+                    sssField.setCaretPosition(formatted.length());
+                }
+            }
+        });
+
+        tinField.addKeyListener(new KeyAdapter() {
+            @Override public void keyReleased(KeyEvent e) {
+                String formatted = formatTIN(tinField.getText());
+                if (!formatted.equals(tinField.getText())) {
+                    tinField.setText(formatted);
+                    tinField.setCaretPosition(formatted.length());
+                }
+            }
+        });
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
         panel.add(new JLabel("Employee Number:"));   panel.add(empNumberField);
         panel.add(new JLabel("Last Name:"));         panel.add(lastNameField);
         panel.add(new JLabel("First Name:"));        panel.add(firstNameField);
         panel.add(new JLabel("SSS Number:"));        panel.add(sssField);
-        panel.add(new JLabel("  e.g. 44-4506057-3"));panel.add(new JLabel(""));
+        panel.add(new JLabel("  e.g. ##-#######-#"));panel.add(new JLabel(""));
         panel.add(new JLabel("PhilHealth Number:")); panel.add(philField);
-        panel.add(new JLabel("  e.g. 820126853951"));panel.add(new JLabel(""));
+        panel.add(new JLabel("  e.g. ############"));panel.add(new JLabel(""));
         panel.add(new JLabel("TIN:"));               panel.add(tinField);
-        panel.add(new JLabel("  e.g. 442-605-657-000"));panel.add(new JLabel(""));
+        panel.add(new JLabel("  e.g. ###-###-###-###"));panel.add(new JLabel(""));
         panel.add(new JLabel("Pag-IBIG Number:"));   panel.add(pagIbigField);
-        panel.add(new JLabel("  e.g. 691295330870")); panel.add(new JLabel(""));
+        panel.add(new JLabel("  e.g. ############")); panel.add(new JLabel(""));
         panel.add(new JLabel("Hourly Rate:"));       panel.add(rateField);
 
         // Keep re-showing the dialog until all inputs are valid or the user cancels.
@@ -110,20 +144,11 @@ public class EmployeeUpdateDeleteManager {
             }
 
 
-        // Employee Number must be numeric, positive, and not used by another employee
-            int empNumberValue;
-            try {
-                empNumberValue = Integer.parseInt(newEmpNo);
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Employee Number must be numeric!\nPlease enter a valid number.");
+            // Employee Number must be exactly 5 digits and not used by another employee
+            if (!newEmpNo.matches("\\d{5}")) {
+                JOptionPane.showMessageDialog(null, "Invalid Employee Number format!\nExpected: 10031 (exactly 5 digits)");
                 continue;
             }
-
-                    if (empNumberValue <= 0) {
-                JOptionPane.showMessageDialog(null, "Employee Number must be greater than 0!\nPlease correct the value.");
-                continue;
-            }
-
 
             // Employee Number must not be used by a different employee
             MotorPHEmployeeApp.Employee existing = findEmployee(newEmpNo);
@@ -135,7 +160,7 @@ public class EmployeeUpdateDeleteManager {
             // SSS format: ##-#######-#  (e.g. 44-4506057-3)
             if (!newSSS.matches("\\d{2}-\\d{7}-\\d")) {
                 JOptionPane.showMessageDialog(null,
-                        "Invalid SSS Number format!\nExpected: 44-4506057-3");
+                        "Invalid SSS Number format!\nExpected: ##-#######-#");
                 continue;
             }
 
@@ -151,7 +176,7 @@ public class EmployeeUpdateDeleteManager {
             if (!newPhil.matches("\\d{12}")) {
                 JOptionPane.showMessageDialog(null,
                         "Invalid PhilHealth Number format!\n"
-                        + "Expected format: 820126853951 (12 digits)\n"
+                        + "Expected format: ############ (12 digits)\n"
                         + "Please correct and try again.");
                 continue;
             }
@@ -168,7 +193,7 @@ public class EmployeeUpdateDeleteManager {
             if (!newTIN.matches("\\d{3}-\\d{3}-\\d{3}-\\d{3}")) {
                 JOptionPane.showMessageDialog(null,
                         "Invalid TIN format!\n"
-                        + "Expected format: 442-605-657-000\n"
+                        + "Expected format: ###-###-###-###\n"
                         + "Please correct and try again.");
                 continue;
             }
@@ -185,7 +210,7 @@ public class EmployeeUpdateDeleteManager {
             if (!newPagIbig.matches("\\d{12}")) {
                 JOptionPane.showMessageDialog(null,
                         "Invalid Pag-IBIG Number format!\n"
-                        + "Expected format: 691295330870 (12 digits)\n"
+                        + "Expected format: ############ (12 digits)\n"
                         + "Please correct and try again.");
                 continue;
             }
@@ -303,5 +328,94 @@ public class EmployeeUpdateDeleteManager {
             if (pagIbigNumber.equals(emp.pagIbigNumber)) return true;
         }
         return false;
+    }
+        
+        // ── Keystroke Restrictions ───────────────────────────────────────────────
+
+        // Blocks any typed character that isn't a digit, and stops accepting
+        // input once the field reaches maxLen characters.
+    private void restrictToDigits(JTextField field, int maxLen) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) {
+                    return;
+                }
+                if (!Character.isDigit(c) || field.getText().length() >= maxLen) {
+                    e.consume();
+                }
+            }
+        });
+    }
+
+    // Blocks any typed character that isn't a letter or a space (for
+    // multi-word names like "Dela Cruz").
+    private void restrictToLetters(JTextField field) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) {
+                    return;
+                }
+                if (!Character.isLetter(c) && c != ' ') {
+                    e.consume();
+                }
+            }
+        });
+    }
+
+    // Blocks any typed character that isn't a digit or a decimal point,
+    // and only allows one decimal point per field.
+    private void restrictToDecimal(JTextField field) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) {
+                    return;
+                }
+                if (c == '.' && field.getText().contains(".")) {
+                    e.consume();
+                    return;
+                }
+                if (!Character.isDigit(c) && c != '.') {
+                    e.consume();
+                }
+            }
+        });
+    }
+
+    // Strips non-digits and rebuilds as ##-#######-#  (e.g. 52-1859253-1)
+    private String formatSSS(String raw) {
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() > 10) {
+            digits = digits.substring(0, 10);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            if (i == 2 || i == 9) {
+                sb.append("-");
+            }
+            sb.append(digits.charAt(i));
+        }
+        return sb.toString();
+    }
+
+    // Strips non-digits and rebuilds as ###-###-###-###  (e.g. 599-312-588-000)
+    private String formatTIN(String raw) {
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() > 12) {
+            digits = digits.substring(0, 12);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            if (i == 3 || i == 6 || i == 9) {
+                sb.append("-");
+            }
+            sb.append(digits.charAt(i));
+        }
+        return sb.toString();
     }
 }

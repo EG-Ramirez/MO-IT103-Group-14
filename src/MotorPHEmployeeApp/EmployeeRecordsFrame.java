@@ -167,6 +167,7 @@ public class EmployeeRecordsFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 MotorPHEmployeeApp.loadEmployeesFromCSV("mph_employees_record.csv");
+                MotorPHEmployeeApp.loadAttendanceFromCSV("attendance_record.csv");
                 loadTableData();
                 clearSelection();
                 

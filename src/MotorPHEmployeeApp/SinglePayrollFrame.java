@@ -3,6 +3,8 @@ package MotorPHEmployeeApp;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
 
 public class SinglePayrollFrame extends JFrame {
@@ -68,11 +70,13 @@ public class SinglePayrollFrame extends JFrame {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 5, 10));
 
-        JLabel label = new JLabel("Employee Number:");
+        JLabel label = new JLabel("Input Employee Number:");
         label.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-
+        
+        
         empNumberField = new JTextField(12);
         empNumberField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        restrictToDigits(empNumberField, 5);
 
         generateButton = new JButton("Generate Payroll");
         styleButton(generateButton);
@@ -126,6 +130,20 @@ public class SinglePayrollFrame extends JFrame {
         btn.setBorder(BorderFactory.createEmptyBorder(5, 12, 5, 12));
     }
 
+    // Restricts a text field to numeric digits only, up to maxLen characters
+    private void restrictToDigits(JTextField field, int maxLen) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) return;
+                if (!Character.isDigit(c) || field.getText().length() >= maxLen) {
+                    e.consume();
+                }
+            }
+        });
+    }
+
     //Event handlers
     private void setupEvents() {
 
@@ -156,6 +174,8 @@ public class SinglePayrollFrame extends JFrame {
                     "Please enter an Employee Number.",
                     "Missing Input",
                     JOptionPane.WARNING_MESSAGE);
+            empNumberField.setText("");
+            empNumberField.requestFocusInWindow();
             return;
         }
 
@@ -166,6 +186,8 @@ public class SinglePayrollFrame extends JFrame {
                     "Employee Number Does Not Exist!",
                     "Not Found",
                     JOptionPane.ERROR_MESSAGE);
+            empNumberField.setText("");
+            empNumberField.requestFocusInWindow();
             return;
         }
 

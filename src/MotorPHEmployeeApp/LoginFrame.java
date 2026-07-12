@@ -75,7 +75,7 @@ public class LoginFrame extends JFrame {
         loginTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         loginTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel subtitle = new JLabel("Enter your credentials");
+        JLabel subtitle = new JLabel("Enter Your Credentials");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(Color.GRAY);
         subtitle.setHorizontalAlignment(SwingConstants.CENTER);

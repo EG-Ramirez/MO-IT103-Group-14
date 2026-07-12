@@ -147,22 +147,8 @@ public class PayrollStaffFrame extends JFrame {
                 }
 
                 String summary = MotorPHEmployeeApp.generatePayrollSummary();
-
-                JTextArea summaryArea = new JTextArea(summary);
-                summaryArea.setEditable(false);
-                summaryArea.setFont(new Font("Monospaced", Font.PLAIN, 13));
-                summaryArea.setLineWrap(true);
-                summaryArea.setWrapStyleWord(true);
-                summaryArea.setCaretPosition(0);
-
-                JScrollPane scrollPane = new JScrollPane(summaryArea);
-                scrollPane.setPreferredSize(new Dimension(600, 400));
-
-                JOptionPane.showMessageDialog(
-                        PayrollStaffFrame.this,
-                        scrollPane,
-                        "Payroll Summary",
-                        JOptionPane.INFORMATION_MESSAGE);
+                
+                new PayrollSummaryFrame(summary).setVisible(true);
             }
         });
 

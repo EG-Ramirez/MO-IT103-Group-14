@@ -3,11 +3,14 @@ package MotorPHEmployeeApp;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 public class EmployeePortalFrame extends JFrame {
     private JButton exitButton;
-    private JButton returnButton;
     private JButton logoutButton;
     private JTextArea displayArea;
     private boolean accessGranted = true;
@@ -19,6 +22,20 @@ public class EmployeePortalFrame extends JFrame {
     
     public boolean isAccessGranted(){
         return accessGranted;
+    }
+    
+    // Restricts a text field to numeric digits only, up to maxLen characters
+    private void restrictToDigits(JTextField field, int maxLen) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) return;
+                if (!Character.isDigit(c) || field.getText().length() >= maxLen) {
+                    e.consume();
+                }
+            }
+        });
     }
     
     public EmployeePortalFrame(String username) {
@@ -51,6 +68,7 @@ public class EmployeePortalFrame extends JFrame {
 
             JTextField empField = new JTextField ();
             empField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            restrictToDigits(empField, 5);
             
             JPanel cardPanel = new JPanel();
             cardPanel.setPreferredSize(new Dimension(340, 220));
@@ -78,7 +96,7 @@ public class EmployeePortalFrame extends JFrame {
             dGbc.fill = GridBagConstraints.HORIZONTAL;
             dGbc.anchor = GridBagConstraints.CENTER;      
             
-            JLabel label = new JLabel ("Employee Number");
+            JLabel label = new JLabel ("Input Employee Number:");
             label.setFont(new Font ("Segoe UI", Font.BOLD, 12));
                     
             empField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -92,15 +110,28 @@ public class EmployeePortalFrame extends JFrame {
             cardPanel.add(header, BorderLayout.NORTH);
             cardPanel.add(inputPanel, BorderLayout.CENTER);
             
-            SwingUtilities.invokeLater(() -> empField.requestFocusInWindow());
-                                      
-            int result = JOptionPane.showConfirmDialog(
-                    null,
-                    cardPanel,
-                    "Login", 
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.PLAIN_MESSAGE
-                    );                                
+                empField.addAncestorListener(new AncestorListener() {
+                    @Override
+                    public void ancestorAdded(AncestorEvent event) {
+                        empField.requestFocusInWindow();
+                    }
+
+                    @Override
+                    public void ancestorRemoved(AncestorEvent event) {
+                    }
+
+                    @Override
+                    public void ancestorMoved(AncestorEvent event) {
+                    }
+                });
+
+                int result = JOptionPane.showConfirmDialog(
+                        null,
+                        cardPanel,
+                        "Login",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE
+                );                                
          
             if (result != JOptionPane.OK_OPTION) {
                 accessGranted = false;
@@ -178,13 +209,6 @@ public class EmployeePortalFrame extends JFrame {
         exitButton.setFocusPainted(false);
         exitButton.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
         
-        returnButton = new JButton("Return");
-        returnButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        returnButton.setBackground(new Color(25, 118, 210));
-        returnButton.setForeground(Color.WHITE);
-        returnButton.setFocusPainted(false);
-        returnButton.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
-        
         logoutButton = new JButton("Logout");
         logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         logoutButton.setBackground(new Color(25, 118, 210));
@@ -194,7 +218,6 @@ public class EmployeePortalFrame extends JFrame {
         
 
         bottomPanel.add(exitButton);
-        bottomPanel.add(returnButton);
         bottomPanel.add(logoutButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
@@ -212,18 +235,6 @@ public class EmployeePortalFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 dispose();
                 new LoginFrame().setVisible(true);
-            }
-        });
-        
-        returnButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                EmployeePortalFrame portal = new EmployeePortalFrame(username);
-                if(portal.isAccessGranted()){
-                    portal.setVisible(true);
-                }
-                
             }
         });   
     }
