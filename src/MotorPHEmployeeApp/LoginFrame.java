@@ -57,48 +57,77 @@ public class LoginFrame extends JFrame {
         rightPanel.setBackground(new Color(245, 245, 245));
 
         JPanel loginCard = new JPanel();
-        loginCard.setPreferredSize(new Dimension(280, 220));
+        loginCard.setPreferredSize(new Dimension(300, 300));
         loginCard.setBackground(Color.WHITE);
-        loginCard.setLayout(new BoxLayout(loginCard, BoxLayout.Y_AXIS));
+        loginCard.setLayout(new GridBagLayout());
         loginCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220)),
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
+        
+        GridBagConstraints cardGbc = new GridBagConstraints();
+        cardGbc.gridx = 0;
+        cardGbc.weightx = 1.0;
+        cardGbc.fill = GridBagConstraints.HORIZONTAL;
+        cardGbc.anchor = GridBagConstraints.CENTER;
 
         JLabel loginTitle = new JLabel("Login");
         loginTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        loginTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginTitle.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel subtitle = new JLabel("Enter your credentials");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subtitle.setForeground(Color.GRAY);
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
+               
+        JLabel usernameLabel = new JLabel("Username");
+        usernameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        usernameLabel.setHorizontalAlignment(SwingConstants.LEFT);
+       
         usernameField = new JTextField();
         usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        usernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        
+        JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        passwordLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 
         loginButton = new JButton("LOGIN");
         loginButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         loginButton.setBackground(new Color(0, 128, 215));
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
-        loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-
-        loginCard.add(loginTitle);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 5)));
-        loginCard.add(subtitle);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
-        loginCard.add(usernameField);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 10)));
-        loginCard.add(passwordField);
-        loginCard.add(Box.createRigidArea(new Dimension(0, 15)));
-        loginCard.add(loginButton);
+        loginButton.setPreferredSize(new Dimension (220,36));
+        
+        cardGbc.gridy = 0;
+        cardGbc.insets = new Insets (0,0,5,0);
+        loginCard.add(loginTitle, cardGbc);
+        
+        cardGbc.gridy = 1;
+        cardGbc.insets = new Insets (0,0,15,0);
+        loginCard.add(subtitle, cardGbc);
+        
+        cardGbc.gridy = 2;
+        cardGbc.insets = new Insets (0,0,4,0);
+        loginCard.add(usernameLabel, cardGbc);
+        
+        cardGbc.gridy = 3;
+        cardGbc.insets = new Insets (0,0,10,0);
+        loginCard.add(usernameField, cardGbc);
+        
+        cardGbc.gridy = 4;
+        cardGbc.insets = new Insets (0,0,4,0);
+        loginCard.add(passwordLabel, cardGbc);
+        
+        cardGbc.gridy = 5;
+        cardGbc.insets = new Insets (0,0,25,0);
+        loginCard.add(passwordField, cardGbc);
+        
+        cardGbc.gridy = 6;
+        cardGbc.insets = new Insets (0,0,0,0);
+        loginCard.add(loginButton, cardGbc);
 
         rightPanel.add(loginCard);
 
@@ -156,10 +185,14 @@ public class LoginFrame extends JFrame {
         }
 
         if (username.equals(EMPLOYEE)) {
-            new EmployeePortalFrame(username).setVisible(true);
+            dispose();
+            EmployeePortalFrame portal = new EmployeePortalFrame(username);
+            if(portal.isAccessGranted()){
+                portal.setVisible(true);
+            }
         } else {
+            dispose();
             new PayrollStaffFrame().setVisible(true);
         }
-        dispose();
     }
 }
