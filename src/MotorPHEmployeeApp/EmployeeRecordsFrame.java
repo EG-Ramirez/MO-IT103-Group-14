@@ -19,10 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
-import javax.swing.JSplitPane; // ✅ ADDED
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.JSplitPane;
 import javax.swing.table.DefaultTableModel;
 
 public class EmployeeRecordsFrame extends JFrame {
@@ -140,13 +137,11 @@ public class EmployeeRecordsFrame extends JFrame {
         buttonPanel.add(deleteButton);
         buttonPanel.add(closeButton);
 
-
         // ===== FRAME =====
         setLayout(new BorderLayout());
         add(headerPanel, BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-
 
         // ===== EVENTS (UNCHANGED) =====
 
@@ -159,7 +154,7 @@ public class EmployeeRecordsFrame extends JFrame {
                         loadTableData();
                     }
                 });
-                inputFrame.setVisible(true);
+                
             }
         });
 
