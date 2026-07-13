@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 /**
  * EmployeeInputFrame - Add or Edit an Employee Record
- * Collects the employee master data (Employee No., Name, government
+ * Collects the employee master data (Employee No., Name, birthday government
  * numbers, Hourly Rate) and saves it through EmployeeFileManager, so
  * every record ends up in the same CSV format the rest of the system
  * already relies on. Payroll figures (hours, gross/net pay) are NOT
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class EmployeeInputFrame extends JFrame {
 
     // ── Fields ────────────────────────────────────────────────────────────────
-    private JTextField txtEmpNo, txtFirstName, txtLastName, txtRate;
+    private JTextField txtEmpNo, txtFirstName, txtLastName, txtBirthday, txtRate;
     private JTextField txtSSS, txtPhilHealth, txtTIN, txtPagIbig;
     private JButton btnSave, btnCancel, btnClear;
     private Runnable onSaveCallback;
@@ -54,7 +54,7 @@ public class EmployeeInputFrame extends JFrame {
     private void initComponents() {
         setTitle(editMode ? "Edit Employee Record" : "Add New Employee");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(500, 720);
+        setSize(500, 770);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -98,31 +98,36 @@ public class EmployeeInputFrame extends JFrame {
         // Last Name
         txtLastName = new JTextField(20);
         addFormRow(formPanel, gbc, 3, "Last Name", txtLastName);
+        
+        // Birthday
+        txtBirthday = new JTextField(20);
+        addFormRow(formPanel, gbc, 4, "Birthday", txtBirthday);
+        addHintRow(formPanel, gbc, 5, "Required Format: MM/DD/YYYY (e.g. 06/15/1998)");
 
         // SSS Number
         txtSSS = new JTextField(20);
-        addFormRow(formPanel, gbc, 4, "SSS Number", txtSSS);
-        addHintRow(formPanel, gbc, 5, "Required Format: ##-#######-#");
+        addFormRow(formPanel, gbc, 6, "SSS Number", txtSSS);
+        addHintRow(formPanel, gbc, 7, "Required Format: ##-#######-#");
 
         // PhilHealth Number
         txtPhilHealth = new JTextField(20);
-        addFormRow(formPanel, gbc, 6, "PhilHealth Number", txtPhilHealth);
-        addHintRow(formPanel, gbc, 7, "Required Format: ############ (12 digits)");
+        addFormRow(formPanel, gbc, 8, "PhilHealth Number", txtPhilHealth);
+        addHintRow(formPanel, gbc, 9, "Required Format: ############ (12 digits)");
 
         // TIN
         txtTIN = new JTextField(20);
-        addFormRow(formPanel, gbc, 8, "TIN", txtTIN);
-        addHintRow(formPanel, gbc, 9, "Required Format: ###-###-###-###");
+        addFormRow(formPanel, gbc, 10, "TIN", txtTIN);
+        addHintRow(formPanel, gbc, 11, "Required Format: ###-###-###-###");
 
         // Pag-IBIG Number
         txtPagIbig = new JTextField(20);
-        addFormRow(formPanel, gbc, 10, "Pag-IBIG Number", txtPagIbig);
-        addHintRow(formPanel, gbc, 11, "Required Format: ############ (12 digits)");
+        addFormRow(formPanel, gbc, 12, "Pag-IBIG Number", txtPagIbig);
+        addHintRow(formPanel, gbc, 13, "Required Format: ############ (12 digits)");
 
         // Hourly Rate
         txtRate = new JTextField(20);
-        addFormRow(formPanel, gbc, 12, "Hourly Rate (₱)", txtRate);
-        addHintRow(formPanel, gbc, 13, "Required Format: ###.## (2 decimal places)");
+        addFormRow(formPanel, gbc, 14, "Hourly Rate (₱)", txtRate);
+        addHintRow(formPanel, gbc, 15, "Required Format: ###.## (2 decimal places)");
 
         mainPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -146,7 +151,7 @@ public class EmployeeInputFrame extends JFrame {
         btnSave.addActionListener(e -> saveRecord());
         btnClear.addActionListener(e -> clearFields());
         btnCancel.addActionListener(e -> dispose());
-
+        
         // Auto-insert dashes for SSS and TIN as the user types
         txtSSS.addKeyListener(new KeyAdapter() {
             @Override
@@ -173,6 +178,7 @@ public class EmployeeInputFrame extends JFrame {
         restrictToDigits(txtEmpNo, 5);
         restrictToLetters(txtFirstName);
         restrictToLetters(txtLastName);
+        restrictToBirthdayChars(txtBirthday, 10); 
         restrictToDigits(txtSSS, 20);
         restrictToDigits(txtPhilHealth, 12);
         restrictToDigits(txtTIN, 20);
@@ -258,7 +264,26 @@ public class EmployeeInputFrame extends JFrame {
             }
         });
     }
-
+    
+    // Blocks any typed character that isn't a digit or a forward slash.
+    // No auto-formatting — the user types the slashes themselves, and the
+    // strict MM/DD/YYYY format (month 1-12, day 1-31, 4-digit year) is
+    // enforced separately in isValidBirthday() when the record is saved.
+    private void restrictToBirthdayChars(JTextField field, int maxLen) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) {
+                    return;
+                }
+                if ((!Character.isDigit(c) && c != '/') || field.getText().length() >= maxLen) {
+                    e.consume();
+                }
+            }
+        });
+    }
+ 
     // Blocks any typed character that isn't a digit or a decimal point,
     // and only allows one decimal point per field.
     private void restrictToDecimal(JTextField field) {
@@ -283,6 +308,7 @@ public class EmployeeInputFrame extends JFrame {
         String empNo       = txtEmpNo.getText().trim();
         String firstName   = txtFirstName.getText().trim();
         String lastName    = txtLastName.getText().trim();
+        String birthday = txtBirthday.getText().trim();
         String sss         = txtSSS.getText().trim();
         String philHealth  = txtPhilHealth.getText().trim();
         String tin         = txtTIN.getText().trim();
@@ -290,7 +316,7 @@ public class EmployeeInputFrame extends JFrame {
         String rateStr     = txtRate.getText().trim();
 
         // All fields are required
-        if (empNo.isEmpty() || firstName.isEmpty() || lastName.isEmpty()
+        if (empNo.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || birthday.isEmpty()
                 || sss.isEmpty() || philHealth.isEmpty() || tin.isEmpty()
                 || pagIbig.isEmpty() || rateStr.isEmpty()) {
             showError("All fields are required.");
@@ -302,6 +328,14 @@ public class EmployeeInputFrame extends JFrame {
             showError("Invalid Employee No. format!\nExpected: ##### (exactly 5 digits)");
             txtEmpNo.setText("");
             txtEmpNo.requestFocus();
+            return;
+        }
+
+        // Birthday: MM/DD/YYYY, month 01-12, day 01-31
+        if (!isValidBirthday(birthday)) {
+            showError("Invalid Birthday format!\nExpected: MM/DD/YYYY\n(Month: 01-12, Day: 01-31)");
+            txtBirthday.setText("");
+            txtBirthday.requestFocus();
             return;
         }
 
@@ -363,7 +397,7 @@ public class EmployeeInputFrame extends JFrame {
         }
 
         MotorPHEmployeeApp.Employee emp = new MotorPHEmployeeApp.Employee(
-                empNo, lastName, firstName, "N/A", rate,
+                empNo, lastName, firstName, birthday, rate,
                 sss, philHealth, tin, pagIbig);
 
         if (editMode) {
@@ -433,6 +467,7 @@ public class EmployeeInputFrame extends JFrame {
                 emp.lastName = updated.lastName;
                 emp.firstName = updated.firstName;
                 emp.name = updated.name;
+                emp.birthday = updated.birthday;
                 emp.sssNumber = updated.sssNumber;
                 emp.philHealthNumber = updated.philHealthNumber;
                 emp.tin = updated.tin;
@@ -445,7 +480,8 @@ public class EmployeeInputFrame extends JFrame {
     }
 
     private void clearFields() {
-        txtEmpNo.setText(""); txtFirstName.setText(""); txtLastName.setText("");
+        txtEmpNo.setText(""); txtFirstName.setText(""); txtLastName.setText("");        
+        txtBirthday.setText("");
         txtSSS.setText(""); txtPhilHealth.setText(""); txtTIN.setText("");
         txtPagIbig.setText(""); txtRate.setText("");
         txtEmpNo.requestFocus();
@@ -457,6 +493,7 @@ public class EmployeeInputFrame extends JFrame {
         if (data.length > 0) txtEmpNo.setText(data[0].trim());
         if (data.length > 1) txtLastName.setText(data[1].trim());
         if (data.length > 2) txtFirstName.setText(data[2].trim());
+        if (data.length > 3) txtBirthday.setText(data[3].trim());
         if (data.length > 6) txtSSS.setText(data[6].trim());
         if (data.length > 7) txtPhilHealth.setText(data[7].trim());
         if (data.length > 8) txtTIN.setText(data[8].trim());
@@ -464,6 +501,34 @@ public class EmployeeInputFrame extends JFrame {
         if (data.length > 18) txtRate.setText(data[18].trim());
         txtEmpNo.setEditable(false); // Can't change primary key in edit mode
         txtEmpNo.setBackground(new Color(235, 237, 242));
+    }
+
+    // Checks MM/DD/YYYY: month 1-12, day 1-31, year exactly 4 digits.
+    // Month/day may be typed as 1 or 2 digits (e.g. "6/15/1998" or "06/15/1998").
+    private boolean isValidBirthday(String birthday) {
+        if (!birthday.matches("\\d{1,2}/\\d{1,2}/\\d{4}")) {
+            return false;
+        }
+        String[] parts = birthday.split("/");
+        int month = Integer.parseInt(parts[0]);
+        int day = Integer.parseInt(parts[1]);
+        return month >= 1 && month <= 12 && day >= 1 && day <= 31;
+    }
+
+    // Strips non-digits and rebuilds as MM/DD/YYYY  (e.g. 06/15/1998)
+    private String formatBirthday(String raw) {
+        String digits = raw.replaceAll("[^0-9]", "");
+        if (digits.length() > 8) {
+            digits = digits.substring(0, 8);
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            if (i == 2 || i == 4) {
+                sb.append("/");
+            }
+            sb.append(digits.charAt(i));
+        }
+        return sb.toString();
     }
 
     // Strips non-digits and rebuilds as ##-#######-#  (e.g. 52-1859253-1)
@@ -481,7 +546,7 @@ public class EmployeeInputFrame extends JFrame {
         }
         return sb.toString();
     }
-
+    
     // Strips non-digits and rebuilds as ###-###-###-###  (e.g. 599-312-588-000)
     private String formatTIN(String raw) {
         String digits = raw.replaceAll("[^0-9]", "");

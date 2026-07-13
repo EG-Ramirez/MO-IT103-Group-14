@@ -11,6 +11,7 @@ public class PayrollStaffFrame extends JFrame {
     private JButton allEmployeesButton;
     private JButton viewRecordsButton;
     private JButton payrollSummaryButton;
+    private JButton logoutButton;
     private JButton exitButton;
 
     public PayrollStaffFrame() {
@@ -55,7 +56,7 @@ public class PayrollStaffFrame extends JFrame {
         rightPanel.setBackground(new Color(245, 245, 245));
 
         JPanel cardPanel = new JPanel();
-        cardPanel.setPreferredSize(new Dimension(300, 300));
+        cardPanel.setPreferredSize(new Dimension(300, 340));
         cardPanel.setBackground(Color.WHITE);
         cardPanel.setLayout(new BorderLayout());
         cardPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -67,7 +68,7 @@ public class PayrollStaffFrame extends JFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 15, 0));
 
-        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
 
         inputEmployeeButton = new JButton("Add New Employee Record");
@@ -75,6 +76,7 @@ public class PayrollStaffFrame extends JFrame {
         allEmployeesButton = new JButton("Process All Employees");
         viewRecordsButton = new JButton("View Employee Records");
         payrollSummaryButton = new JButton("Generate Payroll Summary");
+        logoutButton = new JButton("Logout");
         exitButton = new JButton("Exit");
 
         JButton[] buttons = {
@@ -83,6 +85,7 @@ public class PayrollStaffFrame extends JFrame {
             allEmployeesButton,
             viewRecordsButton,
             payrollSummaryButton,
+            logoutButton,
             exitButton
         };
 
@@ -152,6 +155,24 @@ public class PayrollStaffFrame extends JFrame {
             }
         });
 
+        logoutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int confirm = JOptionPane.showConfirmDialog(
+                        PayrollStaffFrame.this,
+                        "Are you sure you want to logout?",
+                        "Logout Confirmation",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    dispose();
+                    new LoginFrame().setVisible(true);
+                }
+            }
+        });
+
+ 
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

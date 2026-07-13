@@ -61,6 +61,7 @@ public class EmployeeUpdateDeleteManager {
         JTextField empNumberField = new JTextField(emp.employeeNumber);
         JTextField lastNameField  = new JTextField(emp.lastName);
         JTextField firstNameField = new JTextField(emp.firstName);
+        JTextField birthdayField = new JTextField(emp.birthday);
         JTextField sssField       = new JTextField(emp.sssNumber);
         JTextField philField      = new JTextField(emp.philHealthNumber);
         JTextField tinField       = new JTextField(emp.tin);
@@ -73,13 +74,14 @@ public class EmployeeUpdateDeleteManager {
         restrictToDigits(empNumberField, 5);
         restrictToLetters(lastNameField);
         restrictToLetters(firstNameField);
+        restrictToBirthdayChars(birthdayField, 10); 
         restrictToDigits(sssField, 20);
         restrictToDigits(philField, 12);
         restrictToDigits(tinField, 20);
         restrictToDigits(pagIbigField, 12);
         restrictToDecimal(rateField);
 
-        // Auto-insert dashes for SSS and TIN as the user types
+// Auto-insert dashes for SSS and TIN as the user types
         sssField.addKeyListener(new KeyAdapter() {
             @Override public void keyReleased(KeyEvent e) {
                 String formatted = formatSSS(sssField.getText());
@@ -101,18 +103,33 @@ public class EmployeeUpdateDeleteManager {
         });
 
         JPanel panel = new JPanel(new GridLayout(0, 2, 6, 6));
-        panel.add(new JLabel("Employee Number:"));   panel.add(empNumberField);
-        panel.add(new JLabel("Last Name:"));         panel.add(lastNameField);
-        panel.add(new JLabel("First Name:"));        panel.add(firstNameField);
-        panel.add(new JLabel("SSS Number:"));        panel.add(sssField);
-        panel.add(new JLabel("  e.g. ##-#######-#"));panel.add(new JLabel(""));
-        panel.add(new JLabel("PhilHealth Number:")); panel.add(philField);
-        panel.add(new JLabel("  e.g. ############"));panel.add(new JLabel(""));
-        panel.add(new JLabel("TIN:"));               panel.add(tinField);
-        panel.add(new JLabel("  e.g. ###-###-###-###"));panel.add(new JLabel(""));
-        panel.add(new JLabel("Pag-IBIG Number:"));   panel.add(pagIbigField);
-        panel.add(new JLabel("  e.g. ############")); panel.add(new JLabel(""));
-        panel.add(new JLabel("Hourly Rate:"));       panel.add(rateField);
+
+        panel.add(new JLabel("Employee Number:"));
+        panel.add(empNumberField);
+
+        panel.add(new JLabel("Last Name:"));
+        panel.add(lastNameField);
+
+        panel.add(new JLabel("First Name:"));
+        panel.add(firstNameField);
+
+        panel.add(new JLabel("Birthday (MM/DD/YYYY):"));
+        panel.add(birthdayField);
+
+        panel.add(new JLabel("SSS Number (##-#######-#):"));
+        panel.add(sssField);
+
+        panel.add(new JLabel("PhilHealth Number (12 digits):"));
+        panel.add(philField);
+
+        panel.add(new JLabel("TIN (###-###-###-###):"));
+        panel.add(tinField);
+
+        panel.add(new JLabel("Pag-IBIG Number (12 digits):"));
+        panel.add(pagIbigField);
+
+        panel.add(new JLabel("Hourly Rate:"));
+        panel.add(rateField);
 
         // Keep re-showing the dialog until all inputs are valid or the user cancels.
         // 'continue' re-opens the dialog with the user's existing input intact.
@@ -128,6 +145,7 @@ public class EmployeeUpdateDeleteManager {
             String newEmpNo = empNumberField.getText().trim();
             String newLast = lastNameField.getText().trim();
             String newFirst = firstNameField.getText().trim();
+            String newBirthday = birthdayField.getText().trim();
             String newSSS = sssField.getText().trim();
             String newPhil = philField.getText().trim();
             String newTIN = tinField.getText().trim();
@@ -136,7 +154,7 @@ public class EmployeeUpdateDeleteManager {
 
 
         // All fields are required
-            if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty()
+            if (newEmpNo.isEmpty() || newLast.isEmpty() || newFirst.isEmpty() || newBirthday.isEmpty()
                     || newSSS.isEmpty() || newPhil.isEmpty() || newTIN.isEmpty()
                     || newPagIbig.isEmpty() || rateStr.isEmpty()) {
                 JOptionPane.showMessageDialog(null, "All fields are required!\nPlease fill in every field.");
@@ -154,6 +172,13 @@ public class EmployeeUpdateDeleteManager {
             MotorPHEmployeeApp.Employee existing = findEmployee(newEmpNo);
             if (existing != null && existing != emp) {
                 JOptionPane.showMessageDialog(null, "Employee Number already exists!\nPlease use a unique number.");
+                continue;
+            }
+
+            // Birthday format: MM/DD/YYYY, month 01-12, day 01-31
+            if (!isValidBirthday(newBirthday)) {
+                JOptionPane.showMessageDialog(null,
+                        "Invalid Birthday format!\nExpected: MM/DD/YYYY\n(Month: 01-12, Day: 01-31)");
                 continue;
             }
 
@@ -241,6 +266,7 @@ public class EmployeeUpdateDeleteManager {
             emp.lastName = newLast;
             emp.firstName = newFirst;
             emp.name = newFirst + " " + newLast;   // keep the combined name in sync
+            emp.birthday = newBirthday;
             emp.sssNumber = newSSS;
             emp.philHealthNumber = newPhil;
             emp.tin = newTIN;
@@ -349,6 +375,25 @@ public class EmployeeUpdateDeleteManager {
         });
     }
 
+    // Blocks any typed character that isn't a digit or a forward slash.
+    // No auto-formatting — the user types the slashes themselves, and the
+    // strict MM/DD/YYYY format (month 1-12, day 1-31, 4-digit year) is
+    // enforced separately in isValidBirthday() when the record is saved.
+    private void restrictToBirthdayChars(JTextField field, int maxLen) {
+        field.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (Character.isISOControl(c)) {
+                    return;
+                }
+                if ((!Character.isDigit(c) && c != '/') || field.getText().length() >= maxLen) {
+                    e.consume();
+                }
+            }
+        });
+    }
+
     // Blocks any typed character that isn't a letter or a space (for
     // multi-word names like "Dela Cruz").
     private void restrictToLetters(JTextField field) {
@@ -385,6 +430,20 @@ public class EmployeeUpdateDeleteManager {
                 }
             }
         });
+    }
+
+    // ── Birthday Validation & Formatting ─────────────────────────────────────
+    // Checks MM/DD/YYYY: month 1-12, day 1-31, year exactly 4 digits.
+    // Month/day may be typed as 1 or 2 digits (e.g. "6/15/1998" or "06/15/1998").
+    private boolean isValidBirthday(String birthday) {
+        if (!birthday.matches("\\d{1,2}/\\d{1,2}/\\d{4}")) {
+            return false;
+        }
+
+        String[] parts = birthday.split("/");
+        int month = Integer.parseInt(parts[0]);
+        int day = Integer.parseInt(parts[1]);
+        return month >= 1 && month <= 12 && day >= 1 && day <= 31;
     }
 
     // Strips non-digits and rebuilds as ##-#######-#  (e.g. 52-1859253-1)
