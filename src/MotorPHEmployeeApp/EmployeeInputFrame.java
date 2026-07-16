@@ -107,7 +107,7 @@ public class EmployeeInputFrame extends JFrame {
         // SSS Number
         txtSSS = new JTextField(20);
         addFormRow(formPanel, gbc, 6, "SSS Number", txtSSS);
-        addHintRow(formPanel, gbc, 7, "Required Format: ##-#######-#");
+        addHintRow(formPanel, gbc, 7, "Required Format: ##-#######-# (Auto-dashed)");
 
         // PhilHealth Number
         txtPhilHealth = new JTextField(20);
@@ -117,7 +117,7 @@ public class EmployeeInputFrame extends JFrame {
         // TIN
         txtTIN = new JTextField(20);
         addFormRow(formPanel, gbc, 10, "TIN", txtTIN);
-        addHintRow(formPanel, gbc, 11, "Required Format: ###-###-###-###");
+        addHintRow(formPanel, gbc, 11, "Required Format: ###-###-###-### (Auto-dashed)");
 
         // Pag-IBIG Number
         txtPagIbig = new JTextField(20);
