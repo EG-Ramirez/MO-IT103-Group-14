@@ -98,8 +98,6 @@ public class PayrollStaffFrame extends JFrame {
         }
 
         // Exit button color
-        exitButton.setBackground(new Color(0, 128, 215));
-
         cardPanel.add(titleLabel, BorderLayout.NORTH);
         cardPanel.add(buttonPanel, BorderLayout.CENTER);
 
