@@ -174,6 +174,7 @@ public class EmployeeInputFrame extends JFrame {
                 }
             }
         });
+        
         // Restrict each field to only the kind of character it accepts
         restrictToDigits(txtEmpNo, 5);
         restrictToLetters(txtFirstName);
@@ -513,22 +514,6 @@ public class EmployeeInputFrame extends JFrame {
         int month = Integer.parseInt(parts[0]);
         int day = Integer.parseInt(parts[1]);
         return month >= 1 && month <= 12 && day >= 1 && day <= 31;
-    }
-
-    // Strips non-digits and rebuilds as MM/DD/YYYY  (e.g. 06/15/1998)
-    private String formatBirthday(String raw) {
-        String digits = raw.replaceAll("[^0-9]", "");
-        if (digits.length() > 8) {
-            digits = digits.substring(0, 8);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < digits.length(); i++) {
-            if (i == 2 || i == 4) {
-                sb.append("/");
-            }
-            sb.append(digits.charAt(i));
-        }
-        return sb.toString();
     }
 
     // Strips non-digits and rebuilds as ##-#######-#  (e.g. 52-1859253-1)
