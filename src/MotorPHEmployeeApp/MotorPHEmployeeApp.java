@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class MotorPHEmployeeApp {
@@ -125,15 +123,6 @@ public class MotorPHEmployeeApp {
     }
 
     /*
-     * Appends a new employee record to the CSV file.
-     * Delegates to EmployeeFileManager (centralized I/O).
-     */
-    static void writeEmployeeToCSV(Employee emp) {
-                EmployeeFileManager.writeEmployeeToCSV(emp);
-    }
-    
-    
-    /*
      * Payroll Report Builder
      * NOTE: In CP1 this method used System.out.println().
      * For CP2 it builds the same text using StringBuilder
@@ -244,15 +233,6 @@ public class MotorPHEmployeeApp {
         sb.append("   ==================================================\n");
 
         return sb.toString();
-    }
-    
-    /*
-     * Computed Payroll Writer (Feature 3)
-     * Delegates to EmployeeFileManager (centralized I/O).
-     * Passing month=0 means all months (6-12) are included.
-     */
-    static void writeComputedPayrollToCSV() {
-                EmployeeFileManager.writeComputedPayrollToCSV(employees, 0);
     }
     
     // Convert HH.MM into decimal hours
