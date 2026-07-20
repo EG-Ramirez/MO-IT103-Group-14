@@ -96,18 +96,18 @@ public class EmployeeRecordsFrame extends JFrame {
         detailsArea = new JTextArea();
         detailsArea.setEditable(false);
         detailsArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        detailsArea.setLineWrap(true);
-        detailsArea.setWrapStyleWord(true);
+        detailsArea.setLineWrap(false);
+        detailsArea.setWrapStyleWord(false);
         detailsArea.setMargin(new Insets(10,10,10,10));
 
         JScrollPane detailsScroll = new JScrollPane(detailsArea);
         detailsScroll.setBorder(BorderFactory.createTitledBorder("Employee Profile"));
-        detailsScroll.setPreferredSize(new Dimension(300, 0));
+        detailsScroll.setPreferredSize(new Dimension(350, 0));
 
 
         // ===== SPLIT =====
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, detailsScroll);
-        splitPane.setDividerLocation(600);
+        splitPane.setDividerLocation(540);
         splitPane.setResizeWeight(0.7);
 
 
