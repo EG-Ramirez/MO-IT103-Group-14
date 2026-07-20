@@ -14,7 +14,6 @@ public class EmployeePortalFrame extends JFrame {
     private JButton logoutButton;
     private JTextArea displayArea;
     private boolean accessGranted = true;
-    private String username;
 
     public EmployeePortalFrame() {
         this(null);
