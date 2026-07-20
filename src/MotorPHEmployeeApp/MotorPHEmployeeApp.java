@@ -28,18 +28,7 @@ public class MotorPHEmployeeApp {
         */
         double[][][] attendanceIn = new double[13][2][];
         double[][][] attendanceOut = new double[13][2][];
-
-        Employee(String employeeNumber, String name, String birthday, double hourlyRate) {
-            this.employeeNumber = employeeNumber;
-            this.name = name;
-            this.birthday = birthday;
-            this.hourlyRate = hourlyRate;
-            this.sssNumber = "";
-            this.philHealthNumber = "";
-            this.tin = "";
-            this.pagIbigNumber = "";
-        }
-        
+    
         // Full constructor used by parseEmployee and the updated EmployeeInputFrame
         Employee(String employeeNumber, String lastName, String firstName, String birthday,
                 double hourlyRate, String sssNumber, String philHealthNumber,
